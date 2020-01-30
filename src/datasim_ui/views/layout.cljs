@@ -11,7 +11,7 @@
      :col 12
      :children
      [[:div.header-parent
-       [:input#import-input
+       [:input#import-input.hidden-button
         {:type     "file"
          :name     "import-input"
          :onChange (fn [e]
@@ -28,7 +28,8 @@
         :child          "Import"
         :on-click       (fn [e]
                           (.preventDefault e)
-                          (.stopPropagation e))]
+                          (.stopPropagation e)
+                          (.click (js/document.getElementById "import-input")))]
        [mdl/button
         :raised?        true
         :colored?       true
