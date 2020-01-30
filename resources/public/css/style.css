@@ -27,3 +27,11 @@
     padding:          8px 16px;
     margin:           0px 0px 16px 0px;
 }
+
+.editor {
+    width: 100%;
+}
+
+.editor > textarea {
+    font-size: 12px;
+}

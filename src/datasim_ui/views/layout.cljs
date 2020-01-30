@@ -17,10 +17,9 @@
          :onChange (fn [e]
                      (.preventDefault e)
                      (.stopPropagation e)
-                     (let [text (.text (aget (.. e -currentTarget -files) 0))]
-                       (.then (js/Promise.resolve text)
-                              (fn [content]
-                                (dispatch [:input/import (js/JSON.parse content)])))))}]
+                     (.then (js/Promise.resolve
+                             (.text (aget (.. e -currentTarget -files) 0)))
+                            #(dispatch [:input/import %])))}]
        [mdl/button
         :raised?        true
         :colored?       true

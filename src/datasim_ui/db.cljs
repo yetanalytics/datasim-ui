@@ -26,7 +26,7 @@
   "Throw an exception if the app db does not match the spec."
   [a-spec db]
   (when-not (s/valid? a-spec db)
-    (throw (ex-info (str "Spec check failed in scrivener: " (s/explain-str a-spec db)) {}))))
+    (throw (ex-info (str "Spec check failed in: " (s/explain-str a-spec db)) {}))))
 
 (def check-spec-interceptor
   (re-frame/after
