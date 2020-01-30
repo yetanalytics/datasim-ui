@@ -1,0 +1,11 @@
+{:paths   ["src"]
+ :deps    {org.clojure/clojurescript {:mvn/version "1.10.520"}
+           reagent                   {:mvn/version "0.8.1"}
+           re-frame                  {:mvn/version "0.10.6"}
+           com.yetanalytics/re-mdl   {:mvn/version "0.1.8"
+                                      :exclusions  [reagent
+                                                    cljsjs/react-with-addons]}}
+ :aliases {:fig {:extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.2.3"}
+                               com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
+                 :extra-paths ["target" "resources"]
+                 :main-opts   ["-m" "figwheel.main" "-b" "dev" "-r"]}}}
