@@ -1,5 +1,6 @@
 (ns datasim-ui.views.layout
   (:require [re-mdl.core           :as mdl]
+            [re-frame.core         :refer [dispatch subscribe]]
             [datasim-ui.views.form :as form]))
 
 (defn content
@@ -19,15 +20,7 @@
                      (let [text (.text (aget (.. e -currentTarget -files) 0))]
                        (.then (js/Promise.resolve text)
                               (fn [content]
-                                (let [json       (js/JSON.parse content)
-                                      profiles   (js/document.getElementById "textarea-profiles")
-                                      personae   (js/document.getElementById "textarea-personae")
-                                      alignments (js/document.getElementById "textarea-alignments")
-                                      parameters (js/document.getElementById "textarea-parameters")]
-                                  (set! (.-value profiles) (js/JSON.stringify (.. json -profiles)))
-                                  (set! (.-value personae) (js/JSON.stringify (.. json -personae)))
-                                  (set! (.-value alignments) (js/JSON.stringify (.. json -alignments)))
-                                  (set! (.-value parameters) (js/JSON.stringify (.. json -parameters))))))))}]
+                                (dispatch [:input/import (js/JSON.parse content)])))))}]
        [mdl/button
         :raised?        true
         :colored?       true
@@ -59,25 +52,25 @@
      :children
      [[form/text-field 
        "profiles"
-       "profiles"]]]
+       :input/profiles]]]
     [mdl/cell
      :col 6
      :children
      [[form/text-field
        "personae"
-       "personae"]]]
+       :input/personae]]]
     [mdl/cell
      :col 6
      :children
      [[form/text-field
        "alignments"
-       "alignments"]]]
+       :input/alignments]]]
     [mdl/cell
      :col 6
      :children
      [[form/text-field
        "parameters"
-       "parameters"]]]]])
+       :input/parameters]]]]])
 
 (defn layout
   []
