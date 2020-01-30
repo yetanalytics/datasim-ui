@@ -1,8 +1,13 @@
 (ns datasim-ui.handlers
-  (:require [re-frame.core :as re-frame]))
+  (:require [re-frame.core :as re-frame]
+            [datasim-ui.db :refer [check-spec-interceptor]]))
+
+(def global-interceptors
+  [check-spec-interceptor])
 
 (re-frame/reg-event-db
  :input/import
+ global-interceptors
  (fn [db [_ json-input]]
    (let [profiles   (js/JSON.stringify (.. json-input -profiles))
          personae   (js/JSON.stringify (.. json-input -personae))
