@@ -1,10 +1,11 @@
 (ns datasim-ui.subs
-  (:require [re-frame.core :refer [reg-sub subscribe]]))
+  (:require [re-frame.core :refer [reg-sub subscribe]]
+            [datasim-ui.db :as db]))
 
 (reg-sub
  :db/input
  (fn [db _]
-   (:datasim-ui.db/input db)))
+   (::db/input db)))
 
 (reg-sub
  :input/profiles
@@ -33,5 +34,10 @@
    (subscribe [:db/input]))
  (fn [input _]
    (:input/parameters input)))
+
+(reg-sub
+ :db/focus
+ (fn [db _]
+   (::db/focus db)))
 
 

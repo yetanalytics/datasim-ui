@@ -1,81 +1,67 @@
 (ns datasim-ui.views.layout
-  (:require [re-mdl.core           :as mdl]
-            [re-frame.core         :refer [dispatch subscribe]]
-            [datasim-ui.functions  :as fns]
-            [datasim-ui.views.form :as form]))
+  (:require [re-mdl.core             :as mdl]
+            [re-frame.core           :refer [subscribe]]
+            [datasim-ui.functions    :as fns]
+            [datasim-ui.views.form   :as form]
+            [datasim-ui.views.editor :as editor]))
 
 (defn content
   []
   [mdl/grid
    :children
-   [[mdl/cell
-     :col 12
-     :children
-     [[:div.header-parent
-       [:input#import-input.hidden-button
-        {:type     "file"
-         :name     "import-input"
-         :onChange (fn [e]
-                     (fns/import-file e :input/import))}]
-       [mdl/button
-        :raised?        true
-        :colored?       true
-        :ripple-effect? true
-        :child          "Import"
-        :on-click       (fn [e]
-                          (fns/click-input e "import-input"))]
-       [mdl/button
-        :raised?        true
-        :colored?       true
-        :ripple-effect? true
-        :child          "Export"
-        :on-click       (fn [e]
-                          (fns/export-file e
-                                           (let [profiles   (js/JSON.parse @(subscribe [:input/profiles]))
-                                                 personae   (js/JSON.parse @(subscribe [:input/personae]))
-                                                 alignments (js/JSON.parse @(subscribe [:input/alignments]))
-                                                 parameters (js/JSON.parse @(subscribe [:input/parameters]))
-                                                 json       #js {"profiles"   profiles
-                                                                 "personae"   personae
-                                                                 "alignments" alignments
-                                                                 "parameters" parameters}]
-                                             (js/Blob. [(js/JSON.stringify json)]
-                                                       clj->js {:type "application/json"}))
-                                           "input.json"))]
-       [:div.spacer]
-       [mdl/button
-        :icon? true
-        :child [:i.material-icons "settings"]]
-       [mdl/button
-        :attr           {:type "submit"}
-        :raised?        true
-        :accent?        true
-        :ripple-effect? true
-        :child          "Run"]]]]
-    [mdl/cell
-     :col 6
-     :children
-     [[form/text-field 
-       "profiles"
-       :input/profiles]]]
-    [mdl/cell
-     :col 6
-     :children
-     [[form/text-field
-       "personae"
-       :input/personae]]]
-    [mdl/cell
-     :col 6
-     :children
-     [[form/text-field
-       "alignments"
-       :input/alignments]]]
-    [mdl/cell
-     :col 6
-     :children
-     [[form/text-field
-       "parameters"
-       :input/parameters]]]]])
+   (into [[mdl/cell
+           :col 12
+           :children
+           [[:div.header-parent
+             [:input#import-input.hidden-button
+              {:type     "file"
+               :name     "import-input"
+               :onChange (fn [e]
+                           (fns/import-file e :input/import))}]
+             [mdl/button
+              :raised?        true
+              :colored?       true
+              :ripple-effect? true
+              :child          "Import"
+              :on-click       (fn [e]
+                                (fns/click-input e "import-input"))]
+             [mdl/button
+              :raised?        true
+              :colored?       true
+              :ripple-effect? true
+              :child          "Export"
+              :on-click       (fn [e]
+                                (fns/export-file e
+                                                 (let [profiles   (js/JSON.parse @(subscribe [:input/profiles]))
+                                                       personae   (js/JSON.parse @(subscribe [:input/personae]))
+                                                       alignments (js/JSON.parse @(subscribe [:input/alignments]))
+                                                       parameters (js/JSON.parse @(subscribe [:input/parameters]))
+                                                       json       #js {"profiles"   profiles
+                                                                       "personae"   personae
+                                                                       "alignments" alignments
+                                                                       "parameters" parameters}]
+                                                   (js/Blob. [(js/JSON.stringify json)]
+                                                             clj->js {:type "application/json"}))
+                                                 "input.json"))]
+             [:div.spacer]
+             [mdl/button
+              :icon?    true
+              :child    [:i.material-icons "settings"]
+              :on-click (fn [e]
+                          (fns/ps-event e))]
+             [mdl/button
+              :attr           {:type "submit"}
+              :raised?        true
+              :accent?        true
+              :ripple-effect? true
+              :child          "Run"]]]]]
+         (if-let [sub-key @(subscribe [:db/focus])]
+           [[editor/editor-max sub-key]
+            [editor/editor-tab-bar sub-key]]
+           [[editor/editor-min :input/profiles]
+            [editor/editor-min :input/personae]
+            [editor/editor-min :input/alignments]
+            [editor/editor-min :input/parameters]]))])
 
 (defn layout
   []

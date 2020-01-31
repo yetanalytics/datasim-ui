@@ -16,7 +16,10 @@
                                 :input/alignments
                                 :input/parameters]))
 
-(s/def ::db (s/keys :opt [::input]))
+(s/def ::focus (s/nilable keyword?))
+
+(s/def ::db (s/keys :opt [::input
+                          ::focus]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; VALIDATOR
