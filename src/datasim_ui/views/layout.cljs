@@ -36,7 +36,37 @@
         :child          "Export"
         :on-click       (fn [e]
                           (.preventDefault e)
-                          (.stopPropagation e))]
+                          (.stopPropagation e)
+                          (let [profiles   (js/JSON.parse @(subscribe [:input/profiles]))
+                                personae   (js/JSON.parse @(subscribe [:input/personae]))
+                                alignments (js/JSON.parse @(subscribe [:input/alignments]))
+                                parameters (js/JSON.parse @(subscribe [:input/parameters]))
+                                json       #js {"profiles"   profiles
+                                                "personae"   personae
+                                                "alignments" alignments
+                                                "parameters" parameters}
+                                blob       (js/Blob. [(js/JSON.stringify json)]
+                                                     clj->js {:type "application/json"})
+                                link       (js/document.createElement "a")]
+                            (set! (.-download link) "input.json")
+                            (if js/window.webkitURL
+                              (set! (.-href link)
+                                    (.createObjectURL js/window.webkitURL
+                                                      blob))
+                              (do
+                                (set! (.-href link)
+                                      (.createObjectURL js/window.URL
+                                                        blob))
+                                (set! (.-onclick link)
+                                      (fn [e]
+                                        (.preventDefault e)
+                                        (.stopPropagation e)
+                                        (.remove (.. e -currentTarget))))
+                                (set! (.. link -style -display)
+                                      "none")
+                                (.append js/document.body
+                                         link)))
+                            (.click link)))]
        [:div.spacer]
        [mdl/button
         :icon? true
