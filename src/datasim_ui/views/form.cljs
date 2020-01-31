@@ -1,6 +1,7 @@
 (ns datasim-ui.views.form
-  (:require [re-mdl.core   :as mdl]
-            [re-frame.core :refer [subscribe dispatch]]))
+  (:require [re-mdl.core          :as mdl]
+            [re-frame.core        :refer [subscribe dispatch]]
+            [datasim-ui.functions :as fns]))
 
 (defn form
   [body]
@@ -21,12 +22,8 @@
         :type     "file"
         :class    "hidden-button"
         :onChange (fn [e]
-                    (.preventDefault e)
-                    (.stopPropagation e)
-                    (.then (js/Promise.resolve
-                            (.text (aget (.. e -currentTarget -files) 0)))
-                           #(dispatch [(keyword input-name "import") %])))}]
-      [:span input-name]
+                    (fns/import-file e (keyword input-name "import")))}]
+      [:span (clojure.string/capitalize input-name)]
       [:div.spacer]
       [mdl/button
        :class          "mini-button"
@@ -35,9 +32,7 @@
        :ripple-effect? true
        :child          "Import"
        :on-click       (fn [e]
-                         (.preventDefault e)
-                         (.stopPropagation e)
-                         (.click (js/document.getElementById id)))]
+                         (fns/click-input e id))]
       [mdl/button
        :class          "mini-button"
        :raised?        true
@@ -45,30 +40,10 @@
        :ripple-effect? true
        :child          "Export"
        :on-click       (fn [e]
-                         (.preventDefault e)
-                         (.stopPropagation e)
-                         (let [blob (js/Blob. [@(subscribe [sub-key])]
-                                              clj->js {:type "application/json"})
-                               link (js/document.createElement "a")]
-                           (set! (.-download link) (str input-name ".json"))
-                           (if js/window.webkitURL
-                             (set! (.-href link)
-                                   (.createObjectURL js/window.webkitURL
-                                                     blob))
-                             (do
-                               (set! (.-href link)
-                                     (.createObjectURL js/window.URL
-                                                       blob))
-                               (set! (.-onclick link)
-                                     (fn [e]
-                                       (.preventDefault e)
-                                       (.stopPropagation e)
-                                       (.remove (.. e -currentTarget))))
-                               (set! (.. link -style -display)
-                                     "none")
-                               (.append js/document.body
-                                        link)))
-                           (.click link)))]]
+                         (fns/export-file e
+                                          (js/Blob. [@(subscribe [sub-key])]
+                                                    clj->js {:type "application/json"})
+                                          (str input-name ".json")))]]
      [mdl/textfield
       :input-attr {:name input-name}
       :class      "editor"
