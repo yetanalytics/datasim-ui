@@ -7,7 +7,7 @@
 }
 
 .mdl-button {
-    margin: 0 8px;
+    margin: 0 4px;
 }
 
 .hidden-button {
@@ -21,7 +21,7 @@
     font-size:   10px;
 }
 
-.text-field--header {
+.editor--header {
     background-color: #eeeeee;
     display:          flex;
     padding:          8px 16px;
@@ -30,6 +30,12 @@
 
 .editor {
     width: 100%;
+}
+
+.editor-title {
+    line-height:   24px;
+    padding-right: 24px;
+    font-weight:   900;
 }
 
 .editor > textarea {

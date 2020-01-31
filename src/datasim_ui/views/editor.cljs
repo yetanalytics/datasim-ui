@@ -12,26 +12,35 @@
 
 (defn editor-split-pane
   []
-  [:div 
-   {:on-click #(dispatch [:focus/clear])}
-   "Return"])
+  [mdl/button
+   :class          "mini-button"
+   :raised?        true
+   :colored?       true
+   :ripple-effect? true
+   :child          "Split-Pane View"
+   :on-click       (fn [e]
+                     (fns/ps-event e)
+                     (dispatch [:focus/clear]))])
 
 (defn editor-tab
   [[k v]]
-  [:div 
-   {:on-click #(dispatch [:focus/set k])}
-   v])
+  [mdl/button
+   :class          "mini-button"
+   :raised?        true
+   :colored?       true
+   :ripple-effect? true
+   :child          v
+   :on-click       (fn [e]
+                     (fns/ps-event e)
+                     (dispatch [:focus/set k]))])
 
 (defn editor-tab-bar
   [sub-key]
-  [mdl/cell
-   :col 12
-   :children
-   (conj
-    (into []
-          (for [input (dissoc inputs sub-key)]
-            [editor-tab input]))
-    [editor-split-pane])])
+  (conj
+   (into [:span]
+         (for [input (dissoc inputs sub-key)]
+           [editor-tab input]))
+   [editor-split-pane]))
 
 (defn editor
   [sub-key size]
@@ -43,14 +52,17 @@
             12)
      :children
      [[:div
-       [:div.text-field--header
+       [:div.editor--header
         [:input
          {:id       id
           :type     "file"
           :class    "hidden-button"
           :onChange (fn [e]
                       (fns/import-file e (keyword input-name "import")))}]
-        [:span input-name]
+        [:span
+         [:span.editor-title input-name]
+         (when (= :max size)
+           [editor-tab-bar sub-key])]
         [:div.spacer]
         [mdl/button
          :class          "mini-button"
@@ -73,6 +85,7 @@
                                             (str input-name ".json")))]
         (when (= :min size)
           [mdl/button
+           :class    "mini-button"
            :icon?    true
            :child    [:i.material-icons "fullscreen"]
            :on-click (fn [e]

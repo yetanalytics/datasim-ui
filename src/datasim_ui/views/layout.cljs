@@ -56,8 +56,7 @@
               :ripple-effect? true
               :child          "Run"]]]]]
          (if-let [sub-key @(subscribe [:db/focus])]
-           [[editor/editor-max sub-key]
-            [editor/editor-tab-bar sub-key]]
+           [[editor/editor-max sub-key]]
            [[editor/editor-min :input/profiles]
             [editor/editor-min :input/personae]
             [editor/editor-min :input/alignments]
