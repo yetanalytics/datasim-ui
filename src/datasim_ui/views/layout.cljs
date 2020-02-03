@@ -10,9 +10,10 @@
   [mdl/grid
    :children
    (into [[mdl/cell
-           :col 12
+           :class "header-container"
+           :col   12
            :children
-           [[:div.header-parent
+           [[:div
              [:input#import-input.hidden-button
               {:type     "file"
                :name     "import-input"
@@ -56,10 +57,7 @@
               :accent?        true
               :ripple-effect? true
               :child          "Run"]]]]
-          [mdl/cell
-           :col 12
-           :children
-           [[form/options]]]]
+          [form/options]]
          (if-let [sub-key @(subscribe [:db/focus])]
            [[editor/editor-max sub-key]]
            [[editor/editor-min :input/profiles]

@@ -1,4 +1,10 @@
-.header-parent {
+.header-container {
+    background-color: #DDDDDD;
+    padding:          8px;
+    margin-bottom:    0px;
+}
+
+.header-container > div {
     display: flex;
 }
 
@@ -31,7 +37,7 @@
 }
 
 .editor--header {
-    background-color: #eeeeee;
+    background-color: #DDDDDD;
     display:          flex;
     padding:          8px 16px;
     margin:           0px 0px 16px 0px;
@@ -49,4 +55,20 @@
 
 .editor > textarea {
     font-size: 12px;
+}
+
+.options-container {
+    background-color: #EEEEEE;
+    margin-top:       0px;
+    padding:          0px 12px;
+}
+
+.options {
+    max-height: 0px;
+    transition: max-height 200ms ease-in;
+    overflow:   hidden;
+}
+
+.options.visible {
+    max-height: 300px;
 }

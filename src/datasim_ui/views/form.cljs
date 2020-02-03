@@ -34,10 +34,15 @@
 
 (defn options
   []
-  (if @(subscribe [:options/visible])
-    [:div
+  [mdl/cell
+   :class "options-container"
+   :col   12
+   :children
+   [[:div
+     {:class (cond-> "options"
+               @(subscribe [:options/visible])
+               (str " visible"))}
      [:h6  "Run Options"]
      [textfield :options/endpoint]
      [textfield :options/api-key]
-     [textfield :options/api-secret-key]]
-    [:div ""]))
+     [textfield :options/api-secret-key]]]])
