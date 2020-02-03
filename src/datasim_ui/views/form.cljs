@@ -1,7 +1,8 @@
 (ns datasim-ui.views.form
   (:require [re-mdl.core          :as mdl]
             [re-frame.core        :refer [subscribe dispatch]]
-            [datasim-ui.functions :as fns]))
+            [datasim-ui.functions :as fns]
+            [datasim-ui.util      :as util]))
 
 (defn form
   [body]
@@ -12,12 +13,31 @@
      :encType "multipart/form-data"}
     body]])
 
-(defn text-field
-  [input-name sub-key]    
+(defn textarea
+  [key]    
   [mdl/textfield
-   :input-attr {:name input-name}
+   :input-attr {:name (util/input-name key)}
    :class      "editor"
    :type       :textarea
    :rows       15
-   :model      @(subscribe [sub-key])
-   :handler-fn #(dispatch [(keyword input-name "import") %])])
+   :model      @(subscribe [key])
+   :handler-fn #(dispatch [key %])])
+
+(defn textfield
+  [key]
+  [mdl/textfield
+   :input-attr      {:name (util/input-name key)}
+   :floating-label? true
+   :label           (util/label key)
+   :model           @(subscribe [key])
+   :handler-fn      #(dispatch [key %])])
+
+(defn options
+  []
+  (if @(subscribe [:options/visible])
+    [:div
+     [:h6  "Run Options"]
+     [textfield :options/endpoint]
+     [textfield :options/api-key]
+     [textfield :options/api-secret-key]]
+    [:div ""]))

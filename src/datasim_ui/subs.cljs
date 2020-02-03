@@ -40,4 +40,37 @@
  (fn [db _]
    (::db/focus db)))
 
+(reg-sub
+ :db/options
+ (fn [db _]
+   (::db/options db)))
+
+(reg-sub
+ :options/visible
+ (fn [_ _]
+   (subscribe [:db/options]))
+ (fn [options _]
+   (:options/visible options)))
+
+(reg-sub
+ :options/endpoint
+ (fn [_ _]
+   (subscribe [:db/options]))
+ (fn [options _]
+   (:options/endpoint options)))
+
+(reg-sub
+ :options/api-key
+ (fn [_ _]
+   (subscribe [:db/options]))
+ (fn [options _]
+   (:options/api-key options)))
+
+(reg-sub
+ :options/api-secret-key
+ (fn [_ _]
+   (subscribe [:db/options]))
+ (fn [options _]
+   (:options/api-secret-key options)))
+
 

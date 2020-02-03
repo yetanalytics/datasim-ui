@@ -1,6 +1,6 @@
 (ns datasim-ui.views.layout
   (:require [re-mdl.core             :as mdl]
-            [re-frame.core           :refer [subscribe]]
+            [re-frame.core           :refer [subscribe dispatch]]
             [datasim-ui.functions    :as fns]
             [datasim-ui.views.form   :as form]
             [datasim-ui.views.editor :as editor]))
@@ -17,7 +17,7 @@
               {:type     "file"
                :name     "import-input"
                :onChange (fn [e]
-                           (fns/import-file e :input/import))}]
+                           (fns/import-file e :input/all))}]
              [mdl/button
               :raised?        true
               :colored?       true
@@ -48,13 +48,18 @@
               :icon?    true
               :child    [:i.material-icons "settings"]
               :on-click (fn [e]
-                          (fns/ps-event e))]
+                          (fns/ps-event e)
+                          (dispatch [:options/toggle]))]
              [mdl/button
               :attr           {:type "submit"}
               :raised?        true
               :accent?        true
               :ripple-effect? true
-              :child          "Run"]]]]]
+              :child          "Run"]]]]
+          [mdl/cell
+           :col 12
+           :children
+           [[form/options]]]]
          (if-let [sub-key @(subscribe [:db/focus])]
            [[editor/editor-max sub-key]]
            [[editor/editor-min :input/profiles]

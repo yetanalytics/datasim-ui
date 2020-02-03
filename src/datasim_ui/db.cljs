@@ -10,15 +10,24 @@
 (s/def :input/personae string?)
 (s/def :input/alignments string?)
 (s/def :input/parameters string?)
-
-(s/def ::input (s/keys :opt-un [:input/profiles
-                                :input/personae
-                                :input/alignments
-                                :input/parameters]))
+(s/def ::input (s/keys :opt [:input/profiles
+                             :input/personae
+                             :input/alignments
+                             :input/parameters]))
 
 (s/def ::focus (s/nilable keyword?))
 
-(s/def ::db (s/keys :opt [::input
+(s/def :options/visible boolean?)
+(s/def :options/endpoint string?)
+(s/def :options/api-key string?)
+(s/def :options/api-secret-key string?)
+(s/def ::options (s/keys :req [:options/visible]
+                         :opt [:options/endpoint
+                               :options/api-key
+                               :options/api-secret-key]))
+
+(s/def ::db (s/keys :req [::options]
+                    :opt [::input
                           ::focus]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

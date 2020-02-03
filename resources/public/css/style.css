@@ -10,15 +10,24 @@
     margin: 0 4px;
 }
 
+.mdl-textfield {
+    margin-right: 16px;
+}
+
 .hidden-button {
     visibility: hidden;
     position:   fixed;
 }
 
-.mini-button {
+.mini-button, .mini-button-icon {
     height:      24px;
     line-height: 24px;
     font-size:   10px;
+}
+
+.mini-button-icon {
+    min-width: 24px;
+    width:     24px;
 }
 
 .editor--header {

@@ -2,25 +2,8 @@
   (:require [re-mdl.core           :as mdl]
             [re-frame.core         :refer [dispatch subscribe]]
             [datasim-ui.views.form :as form]
-            [datasim-ui.functions  :as fns]))
-
-(def inputs
-  {:input/profiles   "Profiles"
-   :input/personae   "Personae"
-   :input/alignments "Alignments"
-   :input/parameters "Parameters"})
-
-(defn editor-split-pane
-  []
-  [mdl/button
-   :class          "mini-button"
-   :raised?        true
-   :colored?       true
-   :ripple-effect? true
-   :child          "Split-Pane View"
-   :on-click       (fn [e]
-                     (fns/ps-event e)
-                     (dispatch [:focus/clear]))])
+            [datasim-ui.functions  :as fns]
+            [datasim-ui.util       :refer [inputs]]))
 
 (defn editor-tab
   [[k v]]
@@ -36,15 +19,13 @@
 
 (defn editor-tab-bar
   [sub-key]
-  (conj
-   (into [:span]
-         (for [input (dissoc inputs sub-key)]
-           [editor-tab input]))
-   [editor-split-pane]))
+  (into [:span]
+        (for [input (dissoc inputs sub-key)]
+          [editor-tab input])))
 
 (defn editor
-  [sub-key size]
-  (let [input-name (get inputs sub-key)
+  [key size]
+  (let [input-name (get inputs key)
         id         (str input-name "-input")]
     [mdl/cell
      :col (if (= :min size)
@@ -58,11 +39,11 @@
           :type     "file"
           :class    "hidden-button"
           :onChange (fn [e]
-                      (fns/import-file e (keyword input-name "import")))}]
+                      (fns/import-file e key))}]
         [:span
          [:span.editor-title input-name]
          (when (= :max size)
-           [editor-tab-bar sub-key])]
+           [editor-tab-bar key])]
         [:div.spacer]
         [mdl/button
          :class          "mini-button"
@@ -80,18 +61,23 @@
          :child          "Export"
          :on-click       (fn [e]
                            (fns/export-file e
-                                            (js/Blob. [@(subscribe [sub-key])]
+                                            (js/Blob. [@(subscribe [key])]
                                                       clj->js {:type "application/json"})
                                             (str input-name ".json")))]
-        (when (= :min size)
-          [mdl/button
-           :class    "mini-button"
-           :icon?    true
-           :child    [:i.material-icons "fullscreen"]
-           :on-click (fn [e]
-                       (fns/ps-event e)
-                       (dispatch [:focus/set sub-key]))])]
-       [form/text-field input-name sub-key]]]]))
+        [mdl/button
+         :class          "mini-button-icon"
+         :icon?          true
+         :ripple-effect? true
+         :child          [:i.material-icons (if (= :min size)
+                                              "fullscreen"
+                                              "fullscreen_exit")]
+         :on-click       (fn [e]
+                           (fns/ps-event e)
+                           (dispatch [(if (= :min size)
+                                        :focus/set
+                                        :focus/clear)
+                                      key]))]]
+       [form/textarea key]]]]))
 
 (defn editor-min
   [sub-key]
