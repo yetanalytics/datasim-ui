@@ -16,7 +16,6 @@
            [[:div
              [:input#import-input.hidden-button
               {:type     "file"
-               :name     "import-input"
                :onChange (fn [e]
                            (fns/import-file e :input/all))}]
              [mdl/button

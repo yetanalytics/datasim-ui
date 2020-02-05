@@ -1,21 +1,26 @@
 (ns datasim-ui.views.form
-  (:require [re-mdl.core          :as mdl]
-            [re-frame.core        :refer [subscribe dispatch]]
-            [datasim-ui.functions :as fns]
-            [datasim-ui.util      :as util]))
+  (:require [re-mdl.core                 :as mdl]
+            [re-frame.core               :refer [subscribe dispatch]]
+            [datasim-ui.views.codemirror :as cm]
+            [datasim-ui.functions        :as fns]
+            [datasim-ui.util             :as util]))
 
 (defn form
   [body]
   [:div
    [:form#generate-form
-    {:action  "http://127.0.0.1:9000/api/v1/generate"
+    {:action  "http://127.0.0.1:9090/api/v1/generate"
      :method  "post"
      :encType "multipart/form-data"}
     body]])
 
 (defn textarea
   [key]    
-  [mdl/textfield
+  [cm/codemirror
+   :name      (util/input-name key)
+   :value     @(subscribe [key])
+   :update-fn #(dispatch [key %])]
+  #_[mdl/textfield
    :input-attr {:name (util/input-name key)}
    :class      "editor"
    :type       :textarea
@@ -45,4 +50,10 @@
      [:h6  "Run Options"]
      [textfield :options/endpoint]
      [textfield :options/api-key]
-     [textfield :options/api-secret-key]]]])
+     [textfield :options/api-secret-key]
+     [mdl/toggle-checkbox
+      :input-attr     {:name "send-to-lrs"}
+      :model          @(subscribe [:options/send-to-lrs])
+      :label          "Send Statements to LRS"'
+      :ripple-effect? true
+      :handler-fn     #(dispatch [:options/send-to-lrs])]]]])

@@ -9,8 +9,9 @@
  :db/initialize
  global-interceptors
  (fn [db _]
-   (assoc-in db [::db/options :options/visible]
-               false)))
+   (assoc db ::db/options
+          {:options/visible     false
+           :options/send-to-lrs false})))
 
 (re-frame/reg-event-db
  :input/all
@@ -94,3 +95,10 @@
  (fn [db [_ api-secret-key]]
    (assoc-in db [::db/options :options/api-secret-key]
              api-secret-key)))
+
+(re-frame/reg-event-db
+ :options/send-to-lrs
+ global-interceptors
+ (fn [db _]
+   (update-in db [::db/options :options/send-to-lrs]
+              not)))

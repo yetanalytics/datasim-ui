@@ -73,4 +73,9 @@
  (fn [options _]
    (:options/api-secret-key options)))
 
-
+(reg-sub
+ :options/send-to-lrs
+ (fn [_ _]
+   (subscribe [:db/options]))
+ (fn [options _]
+   (:options/send-to-lrs options)))

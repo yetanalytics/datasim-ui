@@ -21,10 +21,13 @@
 (s/def :options/endpoint string?)
 (s/def :options/api-key string?)
 (s/def :options/api-secret-key string?)
+(s/def :options/send-to-lrs boolean?)
+(s/def :options/download boolean?)
 (s/def ::options (s/keys :req [:options/visible]
                          :opt [:options/endpoint
                                :options/api-key
-                               :options/api-secret-key]))
+                               :options/api-secret-key
+                               :options/send-to-lrs]))
 
 (s/def ::db (s/keys :req [::options]
                     :opt [::input
