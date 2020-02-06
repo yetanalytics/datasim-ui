@@ -1,50 +1,79 @@
 (ns datasim-ui.views.codemirror
   (:require [reagent.core :as r]
-            [cljsjs.codemirror]
-            [cljsjs.codemirror.mode.javascript]
-            [cljsjs.codemirror.addon.lint.lint]
-            [cljsjs.codemirror.addon.lint.javascript-lint]
-            [cljsjs.codemirror.addon.lint.json-lint]))
+            [cljsjs.codemirror]))
+
+(defn opts
+  "Grab the options componenets from the object."
+  [this]
+  (-> this
+      r/argv
+      rest
+      first))
+
+(defn conf
+  "Grab the configuration componenets from the object."
+  [this]
+  (-> this
+      r/argv
+      rest
+      second))
 
 (defn change
-  [this cm _]
-  (let [{:keys [update-fn]} (-> this
-                                r/argv
-                                rest
-                                seq)]
-    (update-fn (.getValue cm))))
+  "Function to catch the change event from CodeMirror.
+   It will retrieve the update function handler from the passed config.
+
+   The entire value from code mirror will be read into here.
+   It will also pass the change object for extra control."
+  [this cm obj]
+  (let [{:keys [update-fn]} (conf this)]
+    (update-fn (.getValue cm) obj)))
 
 (defn value
+  "Function used to take updates to CodeMirror and reflect them in
+   a state manager."
   [this cm _]
-  (let [{:keys [value]} (-> this
-                            r/argv
-                            rest
-                            seq)]
+  (let [{:keys [value]} (conf this)]
     (when-not (= value (.getValue cm))
       (.setValue cm value))))
 
 (defn codemirror
   []
   (r/create-class
-   {:reagent-render      (fn [& {:keys [name value]}]
+   {:reagent-render      (fn [_ {:keys [name value]}]
+                           ;; Render a textarea element and accept a name
+                           ;; to use it as a form
                            [:textarea
                             {:name         name
                              :defaultValue value}])
     :component-did-mount (fn [this]
-                           (let [cm (-> this
-                                        r/dom-node
-                                        (js/CodeMirror.fromTextArea
-                                         (clj->js {:mode         "application/json"
-                                                   :lineNumbers  true
-                                                   :lineWrapping true
-                                                   :gutters      ["CodeMirror-lint-markers"]
-                                                   :lint         true})))]
+                           (let [opts (opts this)
+                                 conf (conf this)
+                                 ;; create a CodeMirror object from the textarea
+                                 ;; merge in default options with passed opts
+                                 cm   (-> this
+                                          r/dom-node
+                                          (js/CodeMirror.fromTextArea
+                                           (clj->js (merge {:mode         "application/json"
+                                                            :theme        "default"
+                                                            :lineWrapping true}
+                                                           opts))))]
+                             ;; add the CM object to the React component so it can be accessed
                              (r/set-state this {:cm cm})
-                             (.on cm
-                                  "change"
-                                  (fn [doc obj]
-                                    (change this doc obj)))))
+                             ;; attach an option update function callback
+                             ;; this is used when codemirror value changes
+                             (doseq [[event-name event-fn]
+                                     (:events conf)]
+                               (.on cm
+                                    event-name
+                                    (fn [& args]
+                                      (event-fn this args))))
+                             #_(when (:update-fn conf)
+                               (.on cm
+                                    "change"
+                                    (fn [doc obj]
+                                      (change this doc obj))))))
     :component-did-update (fn [this old-argv]
+                            ;; provide a way for CodeMirror to be updated by external state changes
                             (let [cm (-> this
                                          r/state
                                          :cm)]

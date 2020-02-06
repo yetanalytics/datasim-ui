@@ -1,5 +1,5 @@
 .header-container {
-    background-color: #DDDDDD;
+    background-color: #777777;
     padding:          8px;
     margin-bottom:    0px;
 }
@@ -10,6 +10,10 @@
 
 .spacer {
     flex-grow: 1;
+}
+
+.mdl-layout__content {
+    background-color: #555555;
 }
 
 .mdl-button {
@@ -37,10 +41,10 @@
 }
 
 .editor--header {
-    background-color: #DDDDDD;
+    background-color: #777777;
     display:          flex;
     padding:          8px 16px;
-    margin:           0px 0px 16px 0px;
+    margin:           0px;
 }
 
 .editor {
@@ -58,7 +62,7 @@
 }
 
 .options-container {
-    background-color: #EEEEEE;
+    background-color: #999999;
     margin-top:       0px;
     padding:          0px 12px;
 }

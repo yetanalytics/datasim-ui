@@ -3,7 +3,11 @@
             [re-frame.core               :refer [subscribe dispatch]]
             [datasim-ui.views.codemirror :as cm]
             [datasim-ui.functions        :as fns]
-            [datasim-ui.util             :as util]))
+            [datasim-ui.util             :as util]
+            [cljsjs.codemirror.mode.javascript]
+            [cljsjs.codemirror.addon.lint.lint]
+            [cljsjs.codemirror.addon.lint.javascript-lint]
+            [cljsjs.codemirror.addon.lint.json-lint]))
 
 (defn form
   [body]
@@ -17,16 +21,18 @@
 (defn textarea
   [key]    
   [cm/codemirror
-   :name      (util/input-name key)
-   :value     @(subscribe [key])
-   :update-fn #(dispatch [key %])]
-  #_[mdl/textfield
-   :input-attr {:name (util/input-name key)}
-   :class      "editor"
-   :type       :textarea
-   :rows       15
-   :model      @(subscribe [key])
-   :handler-fn #(dispatch [key %])])
+   {:mode         "application/json"
+    :theme        "material-darker"
+    :lineNumbers  true
+    :lineWrapping true
+    :gutters      ["CodeMirror-link-markers"]
+    :lint         true}
+   {:name      (util/input-name key)
+    :value     @(subscribe [key])
+    #_#_:update-fn (fn [value _]
+                     (dispatch [key value]))
+    :events    {"change" (fn [this [cm obj]]
+                           (dispatch [key (.getValue cm)]))}}])
 
 (defn textfield
   [key]
