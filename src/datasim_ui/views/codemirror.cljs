@@ -53,9 +53,8 @@
                                  cm   (-> this
                                           r/dom-node
                                           (js/CodeMirror.fromTextArea
-                                           (clj->js (merge {:mode         "application/json"
-                                                            :theme        "default"
-                                                            :lineWrapping true}
+                                           (clj->js (merge {:mode  "javascript"
+                                                            :theme "default"}
                                                            opts))))]
                              ;; add the CM object to the React component so it can be accessed
                              (r/set-state this {:cm cm})
