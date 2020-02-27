@@ -3,3 +3,6 @@ out/
 .cpcache/
 *.log*
 .rebel_readline_history
+.DS_Store
+resources/.DS_Store
+resources/public/.DS_Store

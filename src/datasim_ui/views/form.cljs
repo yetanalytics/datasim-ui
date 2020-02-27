@@ -1,11 +1,10 @@
 (ns datasim-ui.views.form
   (:require [re-mdl.core                 :as mdl]
             [re-frame.core               :refer [subscribe dispatch]]
-            [datasim-ui.views.codemirror :as cm]
+            [re-codemirror.core          :as cm]
             [datasim-ui.functions        :as fns]
             [datasim-ui.util             :as util]
             [cljsjs.codemirror.mode.javascript]
-            [cljsjs.codemirror.addon.lint.lint]
             [cljsjs.codemirror.addon.lint.javascript-lint]
             [cljsjs.codemirror.addon.lint.json-lint]))
 
@@ -27,12 +26,10 @@
     :lineWrapping true
     :gutters      ["CodeMirror-link-markers"]
     :lint         true}
-   {:name      (util/input-name key)
-    :value     @(subscribe [key])
-    #_#_:update-fn (fn [value _]
-                     (dispatch [key value]))
-    :events    {"change" (fn [this [cm obj]]
-                           (dispatch [key (.getValue cm)]))}}])
+   {:name   (util/input-name key)
+    :value  @(subscribe [key])
+    :events {"change" (fn [this [cm obj]]
+                        (dispatch [key (.getValue cm)]))}}])
 
 (defn textfield
   [key]
