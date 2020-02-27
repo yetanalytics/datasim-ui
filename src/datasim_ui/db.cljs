@@ -29,7 +29,13 @@
                                :options/api-secret-key
                                :options/send-to-lrs]))
 
-(s/def ::db (s/keys :req [::options]
+(s/def :dialog/open boolean?)
+(s/def :dialog/text string?)
+(s/def ::dialog (s/keys :req [:dialog/open]
+                        :opt [:dialog/text]))
+
+(s/def ::db (s/keys :req [::options
+                          ::dialog]
                     :opt [::input
                           ::focus]))
 

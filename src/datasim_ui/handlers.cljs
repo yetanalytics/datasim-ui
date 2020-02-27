@@ -9,9 +9,12 @@
  :db/initialize
  global-interceptors
  (fn [db _]
-   (assoc db ::db/options
-          {:options/visible     false
-           :options/send-to-lrs false})))
+   (-> db
+       (assoc ::db/options
+              {:options/visible     false
+               :options/send-to-lrs false})
+       (assoc ::db/dialog
+              {:dialog/open false}))))
 
 (re-frame/reg-event-db
  :input/all
@@ -102,3 +105,21 @@
  (fn [db _]
    (update-in db [::db/options :options/send-to-lrs]
               not)))
+
+(re-frame/reg-event-db
+ :dialog/open
+ global-interceptors
+ (fn [db _]
+   (assoc-in db [::db/dialog :dialog/open] true)))
+
+(re-frame/reg-event-db
+ :dialog/close
+ global-interceptors
+ (fn [db _]
+   (assoc-in db [::db/dialog :dialog/open] false)))
+
+(re-frame/reg-event-db
+ :dialog.text/set
+ global-interceptors
+ (fn [db [_ text]]
+   (assoc-in db [::db/dialog :dialog/text] text)))

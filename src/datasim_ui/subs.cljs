@@ -79,3 +79,22 @@
    (subscribe [:db/options]))
  (fn [options _]
    (:options/send-to-lrs options)))
+
+(reg-sub
+ :db/dialog
+ (fn [db _]
+   (::db/dialog db)))
+
+(reg-sub
+ :dialog/open
+ (fn [_ _]
+   (subscribe [:db/dialog]))
+ (fn [dialog _]
+   (:dialog/open dialog)))
+
+(reg-sub
+ :dialog/text
+ (fn [_ _]
+   (subscribe [:db/dialog]))
+ (fn [dialog _]
+   (:dialog/text dialog)))
