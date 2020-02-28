@@ -50,6 +50,14 @@
          :raised?        true
          :colored?       true
          :ripple-effect? true
+         :child          "Import from URL"
+         :on-click       (fn [e]
+                           (fns/import-url e key))]
+        [mdl/button
+         :class          "mini-button"
+         :raised?        true
+         :colored?       true
+         :ripple-effect? true
          :child          "Import"
          :on-click       (fn [e]
                            (fns/click-input e id))]
