@@ -20,16 +20,21 @@
  :input/all
  global-interceptors
  (fn [db [_ input]]
-   (let [json       (js/JSON.parse input)
-         profiles   (js/JSON.stringify (.. json -profiles))
-         personae   (js/JSON.stringify (.. json -personae))
-         alignments (js/JSON.stringify (.. json -alignments))
-         parameters (js/JSON.stringify (.. json -parameters))]
-     (assoc db ::db/input
-            {:input/profiles   profiles
-             :input/personae   personae
-             :input/alignments alignments
-             :input/parameters parameters}))))
+   (try
+     (let [json       (js/JSON.parse input)
+           profiles   (js/JSON.stringify (.. json -profiles))
+           personae   (js/JSON.stringify (.. json -personae))
+           alignments (js/JSON.stringify (.. json -alignments))
+           parameters (js/JSON.stringify (.. json -parameters))]
+       (assoc db ::db/input
+              {:input/profiles   profiles
+               :input/personae   personae
+               :input/alignments alignments
+               :input/parameters parameters}))
+     (catch js/Error. e
+       (do
+         (println "ERROR: " e)
+         db)))))
 
 (re-frame/reg-event-db
  :input/profiles
