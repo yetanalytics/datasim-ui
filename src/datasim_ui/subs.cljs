@@ -93,8 +93,49 @@
    (:dialog/open dialog)))
 
 (reg-sub
- :dialog/text
+ :dialog/title
  (fn [_ _]
    (subscribe [:db/dialog]))
  (fn [dialog _]
-   (:dialog/text dialog)))
+   (:dialog/title dialog)))
+
+(reg-sub
+ :dialog/form
+ (fn [_ _]
+   (subscribe [:db/dialog]))
+ (fn [dialog _]
+   (:dialog/form dialog)))
+
+(reg-sub
+ :dialog.form/ids
+ (fn [_ _]
+   (subscribe [:dialog/form]))
+ (fn [form _]
+   (mapv (fn [[id {:keys [type]}]]
+           [id type])
+         form)))
+
+(reg-sub
+ :dialog.form/label
+ (fn [_ _]
+   (subscribe [:dialog/form]))
+ (fn [form [_ id]]
+   (-> form
+       (get id)
+       :label)))
+
+(reg-sub
+ :dialog.form/text
+ (fn [_ _]
+   (subscribe [:dialog/form]))
+ (fn [form [_ id]]
+   (-> form
+       (get id)
+       :text)))
+
+(reg-sub
+ :dialog/save
+ (fn [_ _]
+   (subscribe [:db/dialog]))
+ (fn [dialog _]
+   (:dialog/save dialog)))

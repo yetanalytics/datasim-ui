@@ -30,9 +30,20 @@
                                :options/send-to-lrs]))
 
 (s/def :dialog/open boolean?)
-(s/def :dialog/text string?)
+(s/def :dialog/title string?)
+(s/def :form/id keyword?)
+(s/def :form/type keyword?)
+(s/def :form/label string?)
+(s/def :form/text string?)
+(s/def ::form (s/keys :req-un [:form/type
+                               :form/text]
+                      :opt-un [:form/label]))
+(s/def :dialog/form (s/map-of :form/id ::form))
+(s/def :dialog/save fn?)
 (s/def ::dialog (s/keys :req [:dialog/open]
-                        :opt [:dialog/text]))
+                        :opt [:dialog/title
+                              :dialog/form
+                              :dialog/save]))
 
 (s/def ::db (s/keys :req [::options
                           ::dialog]

@@ -109,8 +109,14 @@
 (re-frame/reg-event-db
  :dialog/open
  global-interceptors
- (fn [db _]
-   (assoc-in db [::db/dialog :dialog/open] true)))
+ (fn [db [_ {:keys [title form save]}]]
+   (assoc db ::db/dialog 
+          (cond-> {:dialog/open  true
+                   :dialog/title title}
+            form
+            (assoc :dialog/form form)
+            save
+            (assoc :dialog/save save)))))
 
 (re-frame/reg-event-db
  :dialog/close
@@ -119,7 +125,11 @@
    (assoc-in db [::db/dialog :dialog/open] false)))
 
 (re-frame/reg-event-db
- :dialog.text/set
+ :dialog.form.text/set
  global-interceptors
- (fn [db [_ text]]
-   (assoc-in db [::db/dialog :dialog/text] text)))
+ (fn [db [_ id text]]
+   (assoc-in db [::db/dialog
+                 :dialog/form
+                 id 
+                 :text]
+             text)))
