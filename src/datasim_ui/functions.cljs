@@ -1,5 +1,8 @@
 (ns datasim-ui.functions
-  (:require [re-frame.core :refer [dispatch]]))
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [re-frame.core    :refer [subscribe dispatch]]
+            [cljs-http.client :as http]
+            [cljs.core.async  :refer [<!]]))
 
 (defn ps-event
   "Helper function that will prevent default action
@@ -54,3 +57,20 @@
         (.append js/document.body
                  link)))
     (.click link)))
+
+(defn import-url
+  [e k]
+  (ps-event e)
+  (dispatch [:dialog/open
+             {:title "Import from URL"
+              :form  {:url {:type  :text
+                            :label "URL"
+                            :text  ""}}
+              :save  (fn []
+                       (go (let [response 
+                                 (<! (http/get "http://localhost:9090/api/v1/download-url"
+                                               {:with-credentials? false
+                                                :headers           {"Access-Control-Allow-Origin" "*"}
+                                                :query-params      {"url" (js/encodeURIComponent @(subscribe [:dialog.form/text :url]))}}))]
+                             (dispatch [k (:body response)])))
+                       (dispatch [:dialog/close]))}]))

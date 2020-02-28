@@ -1,9 +1,6 @@
 (ns datasim-ui.views.layout
-  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [re-mdl.core             :as mdl]
             [re-frame.core           :refer [subscribe dispatch]]
-            [cljs-http.client        :as http]
-            [cljs.core.async         :refer [<!]]
             [datasim-ui.functions    :as fns]
             [datasim-ui.views.form   :as form]
             [datasim-ui.views.editor :as editor]
@@ -11,7 +8,6 @@
 
 (defn content
   []
-  (let [url "https://raw.githubusercontent.com/yetanalytics/datasim/master/dev-resources/personae/simple.json"])
   [mdl/grid
    :children
    (into [[mdl/cell
@@ -29,21 +25,7 @@
               :ripple-effect? true
               :child          "Import from URL"
               :on-click       (fn [e]
-                                (.preventDefault e)
-                                (.stopPropagation e)
-                                (dispatch [:dialog/open
-                                           {:title "Import from URL"
-                                            :form  {:url {:type  :text
-                                                          :label "URL"
-                                                          :text  ""}}
-                                            :save  (fn []
-                                                     (go (let [response 
-                                                               (<! (http/get "http://localhost:9090/api/v1/download-url"
-                                                                             {:with-credentials? false
-                                                                              :headers           {"Access-Control-Allow-Origin" "*"}
-                                                                              :query-params      {"url" (js/encodeURIComponent @(subscribe [:dialog.form/text :url]))}}))]
-                                                           (println (:body response))))
-                                                     (dispatch [:dialog/close]))}]))]
+                                (fns/import-url e :input/all))]
              [mdl/button
               :raised?        true
               :colored?       true
