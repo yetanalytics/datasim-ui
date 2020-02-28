@@ -97,4 +97,5 @@
      [[form/form
        [content]]
       (when @(subscribe [:dialog/open])
-        [dialog/dialog])]]]])
+        [dialog/dialog])
+      [mdl/snackbar-target]]]]])

@@ -1,6 +1,7 @@
 (ns datasim-ui.functions
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [re-frame.core    :refer [subscribe dispatch]]
+  (:require [re-mdl.core      :as mdl]
+            [re-frame.core    :refer [subscribe dispatch]]
             [cljs-http.client :as http]
             [cljs.core.async  :refer [<!]]))
 
@@ -72,5 +73,14 @@
                                                {:with-credentials? false
                                                 :headers           {"Access-Control-Allow-Origin" "*"}
                                                 :query-params      {"url" (js/encodeURIComponent @(subscribe [:dialog.form/text :url]))}}))]
-                             (dispatch [k (:body response)])))
+                             (condp = (:status response)
+                               200 (dispatch [k (:body response)])
+                               400 (mdl/snackbar! :message "URL was malformed"
+                                                  :timeout 5000)
+                               406 (mdl/snackbar! :message "Client Error"
+                                                  :timeout 5000)
+                               404 (mdl/snackbar! :message "Could not find URL"
+                                                  :timeout 5000)
+                               500 (mdl/snackbar! :message "An error occured"
+                                                  :timeout 5000))))
                        (dispatch [:dialog/close]))}]))

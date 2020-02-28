@@ -1,5 +1,6 @@
 (ns datasim-ui.handlers
-  (:require [re-frame.core :as re-frame]
+  (:require [re-mdl.core   :as mdl]
+            [re-frame.core :as re-frame]
             [datasim-ui.db :as db :refer [check-spec-interceptor]]))
 
 (def global-interceptors
@@ -33,7 +34,8 @@
                :input/parameters parameters}))
      (catch js/Error. e
        (do
-         (println "ERROR: " e)
+         (mdl/snackbar! :message "Error parsing JSON Input"
+                        :timeout 5000)
          db)))))
 
 (re-frame/reg-event-db
