@@ -1,1 +1,3 @@
-{:main datasim-ui.core}
+{:main         datasim-ui.core
+ :install-deps true
+ :npm-deps     {"material-components-web" "0.41.1"}}
