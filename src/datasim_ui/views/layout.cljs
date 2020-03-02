@@ -82,7 +82,9 @@
      [[mdl/layout-header-row
        :children
        [[mdl/layout-title
-         :label "Datasim"]
+         :children
+         [[:img
+           {:src "/img/datasim_logo.png"}]]]
         [mdl/layout-spacer]]]]]
     [mdl/layout-drawer
      :children
