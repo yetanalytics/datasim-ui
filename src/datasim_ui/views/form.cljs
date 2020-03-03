@@ -6,7 +6,9 @@
             [datasim-ui.util             :as util]
             [cljsjs.codemirror.mode.javascript]
             [cljsjs.codemirror.addon.lint.javascript-lint]
-            [cljsjs.codemirror.addon.lint.json-lint]))
+            [cljsjs.codemirror.addon.lint.json-lint]
+            [cljsjs.codemirror.addon.edit.matchbrackets]
+            [cljsjs.codemirror.addon.edit.closebrackets]))
 
 (defn form
   [body]
@@ -20,12 +22,14 @@
 (defn textarea
   [key]    
   [cm/codemirror
-   {:mode         "application/json"
-    :theme        "material-darker"
-    :lineNumbers  true
-    :lineWrapping true
-    :gutters      ["CodeMirror-link-markers"]
-    :lint         true}
+   {:mode              "application/json"
+    :theme             "default"
+    :lineNumbers       true
+    :lineWrapping      true
+    :matchBrackets     true
+    :autoCloseBrackets true
+    :gutters           ["CodeMirror-link-markers"]
+    :lint              true}
    {:name   (util/input-name key)
     :value  @(subscribe [key])
     :events {"change" (fn [this [cm obj]]

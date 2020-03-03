@@ -41,3 +41,14 @@
       [mdl/button
        :child    "Cancel"
        :on-click #(dispatch [:dialog/close])]]]]])
+
+(defn dialog-container
+  "Parent component that shows/hides the dialog"
+  []
+  (cond-> [:div.datasim-dialog-container]
+    @(subscribe [:dialog/open])
+    (conj [:div "dialog"] #_(case @(subscribe [:dialog/mode])
+               :com.yetanalytics.dave.ui.app.dialog/form
+               [dialog-form]
+               :com.yetanalytics.dave.ui.app.dialog/options
+               [dialog-options]))))

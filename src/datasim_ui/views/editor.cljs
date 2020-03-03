@@ -7,15 +7,11 @@
 
 (defn editor-tab
   [[k v]]
-  [mdl/button
-   :class          "mini-button"
-   :raised?        true
-   :colored?       true
-   :ripple-effect? true
-   :child          v
-   :on-click       (fn [e]
-                     (fns/ps-event e)
-                     (dispatch [:focus/set k]))])
+  [:button.minorbutton
+   {:on-click (fn [e]
+                (fns/ps-event e)
+                (dispatch [:focus/set k]))}
+   v])
 
 (defn editor-tab-bar
   [sub-key]
@@ -45,46 +41,31 @@
          (when (= :max size)
            [editor-tab-bar key])]
         [:div.spacer]
-        [mdl/button
-         :class          "mini-button"
-         :raised?        true
-         :colored?       true
-         :ripple-effect? true
-         :child          "Import from URL"
-         :on-click       (fn [e]
-                           (fns/import-url e key))]
-        [mdl/button
-         :class          "mini-button"
-         :raised?        true
-         :colored?       true
-         :ripple-effect? true
-         :child          "Import"
-         :on-click       (fn [e]
-                           (fns/click-input e id))]
-        [mdl/button
-         :class          "mini-button"
-         :raised?        true
-         :colored?       true
-         :ripple-effect? true
-         :child          "Export"
-         :on-click       (fn [e]
-                           (fns/export-file e
-                                            (js/Blob. [@(subscribe [key])]
-                                                      clj->js {:type "application/json"})
-                                            (str input-name ".json")))]
-        [mdl/button
-         :class          "mini-button-icon"
-         :icon?          true
-         :ripple-effect? true
-         :child          [:i.material-icons (if (= :min size)
-                                              "fullscreen"
-                                              "fullscreen_exit")]
-         :on-click       (fn [e]
-                           (fns/ps-event e)
-                           (dispatch [(if (= :min size)
-                                        :focus/set
-                                        :focus/clear)
-                                      key]))]]
+        [:button.minorbutton
+         {:on-click (fn [e]
+                      (fns/import-url e key))}
+         "Import from URL"]
+        [:button.minorbutton
+         {:on-click (fn [e]
+                      (fns/click-input e id))}
+         "Import File"]
+        [:button.minorbutton
+         {:on-click (fn [e]
+                      (fns/export-file e
+                                       (js/Blob. [@(subscribe [key])]
+                                                 clj->js {:type "application/json"})
+                                       (str input-name ".json")))}
+         "Export File"]
+        [:button.mdc-icon-button.material-icons
+         {:on-click (fn [e]
+                      (fns/ps-event e)
+                      (dispatch [(if (= :min size)
+                                   :focus/set
+                                   :focus/clear)
+                                 key]))}
+         (if (= :min size)
+           "fullscreen"
+           "fullscreen_exit")]]
        [form/textarea key]]]]))
 
 (defn editor-min

@@ -19,51 +19,38 @@
               {:type     "file"
                :onChange (fn [e]
                            (fns/import-file e :input/all))}]
-             [mdl/button
-              :raised?        true
-              :colored?       true
-              :ripple-effect? true
-              :child          "Import from URL"
-              :on-click       (fn [e]
-                                (fns/import-url e :input/all))]
-             [mdl/button
-              :raised?        true
-              :colored?       true
-              :ripple-effect? true
-              :child          "Import"
-              :on-click       (fn [e]
-                                (fns/click-input e "import-input"))]
-             [mdl/button
-              :raised?        true
-              :colored?       true
-              :ripple-effect? true
-              :child          "Export"
-              :on-click       (fn [e]
-                                (fns/export-file e
-                                                 (let [profiles   (js/JSON.parse @(subscribe [:input/profiles]))
-                                                       personae   (js/JSON.parse @(subscribe [:input/personae]))
-                                                       alignments (js/JSON.parse @(subscribe [:input/alignments]))
-                                                       parameters (js/JSON.parse @(subscribe [:input/parameters]))
-                                                       json       #js {"profiles"   profiles
-                                                                       "personae"   personae
-                                                                       "alignments" alignments
-                                                                       "parameters" parameters}]
-                                                   (js/Blob. [(js/JSON.stringify json)]
-                                                             clj->js {:type "application/json"}))
-                                                 "input.json"))]
+             [:button.minorbutton
+              {:on-click (fn [e]
+                           (fns/import-url e :input/all))}
+              "Import from URL"]
+             [:button.minorbutton
+              {:on-click (fn [e]
+                           (fns/click-input e "import-input"))}
+              "Import File"]
+             [:button.minorbutton
+              {:on-click (fn [e]
+                           (fns/export-file e
+                                            (let [profiles   (js/JSON.parse @(subscribe [:input/profiles]))
+                                                  personae   (js/JSON.parse @(subscribe [:input/personae]))
+                                                  alignments (js/JSON.parse @(subscribe [:input/alignments]))
+                                                  parameters (js/JSON.parse @(subscribe [:input/parameters]))
+                                                  json       #js {"profiles"   profiles
+                                                                  "personae"   personae
+                                                                  "alignments" alignments
+                                                                  "parameters" parameters}]
+                                              (js/Blob. [(js/JSON.stringify json)]
+                                                        clj->js {:type "application/json"}))
+                                            "input.json"))}
+              "Export File"]
              [:div.spacer]
-             [mdl/button
-              :icon?    true
-              :child    [:i.material-icons "settings"]
-              :on-click (fn [e]
-                          (fns/ps-event e)
-                          (dispatch [:options/toggle]))]
-             [mdl/button
-              :attr           {:type "submit"}
-              :raised?        true
-              :accent?        true
-              :ripple-effect? true
-              :child          "Run"]]]]
+             [:button.mdc-icon-button.material-icons
+              {:on-click (fn [e]
+                           (fns/ps-event e)
+                           (dispatch [:options/toggle]))}
+              "settings"]
+             [:button.majorbutton
+              {:type "submit"}
+              "Run"]]]]
           [form/options]]
          (if-let [sub-key @(subscribe [:db/focus])]
            [[editor/editor-max sub-key]]
@@ -72,32 +59,44 @@
             [editor/editor-min :input/alignments]
             [editor/editor-min :input/parameters]]))])
 
+(defn top-menu
+  []
+  [:div.top-menu
+   [:a {:href "#/"}  
+    [:img {:src "img/datasim_logo.png"}]]
+   [:a {:href "https://github.com/yetanalytics/datasim"} "Contribute on GitHub"]])
+
+(defn page
+  []
+  [:div "HI"])
+
+(defn snackbar
+  []
+  [:div.mdc-snackbar.datasim-snackbar
+   {:aria-live "assertive"
+    :aria-atomic "true"
+    :aria-hidden "true"}
+   [:div.mdc-snackbar__text]
+   [:div.mdc-snackbar__action-wrapper
+    [:button.mdc-snackbar__action-button
+     {:type "button"}]]])
+
+(defn footer
+  "The footer at the bottom of the app."
+  []
+  [:footer
+   [:a {:href "#"} [:img {:src "img/datasim_logo_sml.png"}]]
+   [:div.spacer]
+   [:a#license {:href "https://github.com/yetanalytics/datasim/blob/master/LICENSE"}
+    "License"]])
+
 (defn layout
   []
-  [mdl/layout
-   :fixed-header? true
-   :children
-   [[mdl/layout-header
-     :children
-     [[mdl/layout-header-row
-       :children
-       [[mdl/layout-title
-         :children
-         [[:img
-           {:src "/img/datasim_logo.png"}]]]
-        [mdl/layout-spacer]]]]]
-    [mdl/layout-drawer
-     :children
-     [[mdl/layout-title
-       :label "Datasim"]
-      [mdl/layout-nav
-       :children
-       [[mdl/layout-nav-link
-         :content "Demo 1"]]]]]
-    [mdl/layout-content
-     :children
-     [[form/form
-       [content]]
-      (when @(subscribe [:dialog/open])
-        [dialog/dialog])
-      [mdl/snackbar-target]]]]])
+  [:div.datasim-app
+   [:div.datasim-app-body
+    [top-menu] 
+    [form/form
+     [content]]
+    [dialog/dialog-container]]
+   [footer]
+   [snackbar]])
