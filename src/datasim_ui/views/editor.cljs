@@ -24,49 +24,48 @@
   [key size]
   (let [input-name (get inputs key)
         id         (str input-name "-input")]
-    [:div
+    [:div.editor
      {:class (if (= :min size)
                "cell-6"
-               "cell-12")}
-     [:div
-      [:div.editor--header
-       [:input
-        {:id       id
-         :type     "file"
-         :class    "hidden-button"
-         :onChange (fn [e]
-                     (fns/import-file e key))}]
-       [:span
-        (if (= :max size)
-          [editor-tab-bar key]
-          [:span.editor-title input-name])]
-       [:div.spacer]
-       [:button.minorbutton
-        {:on-click (fn [e]
-                     (fns/import-url e key))}
-        "Import from URL"]
-       [:button.minorbutton
-        {:on-click (fn [e]
-                     (fns/click-input e id))}
-        "Import File"]
-       [:button.minorbutton
-        {:on-click (fn [e]
-                     (fns/export-file e
-                                      (js/Blob. [@(subscribe [key])]
-                                                clj->js {:type "application/json"})
-                                      (str input-name ".json")))}
-        "Export File"]
-       [:button.mdc-icon-button.material-icons
-        {:on-click (fn [e]
-                     (fns/ps-event e)
-                     (dispatch [(if (= :min size)
-                                  :focus/set
-                                  :focus/clear)
-                                key]))}
-        (if (= :min size)
-          "fullscreen"
-          "fullscreen_exit")]]
-      [form/textarea key]]]))
+               "cell-12 max")}
+     [:div.editor--header
+      [:input
+       {:id       id
+        :type     "file"
+        :class    "hidden-button"
+        :onChange (fn [e]
+                    (fns/import-file e key))}]
+      [:span
+       (if (= :max size)
+         [editor-tab-bar key]
+         [:span.editor-title input-name])]
+      [:div.spacer]
+      [:button.minorbutton
+       {:on-click (fn [e]
+                    (fns/import-url e key))}
+       "Import from URL"]
+      [:button.minorbutton
+       {:on-click (fn [e]
+                    (fns/click-input e id))}
+       "Import File"]
+      [:button.minorbutton
+       {:on-click (fn [e]
+                    (fns/export-file e
+                                     (js/Blob. [@(subscribe [key])]
+                                               clj->js {:type "application/json"})
+                                     (str input-name ".json")))}
+       "Export File"]
+      [:button.mdc-icon-button.material-icons.icon-mini
+       {:on-click (fn [e]
+                    (fns/ps-event e)
+                    (dispatch [(if (= :min size)
+                                 :focus/set
+                                 :focus/clear)
+                               key]))}
+       (if (= :min size)
+         "fullscreen"
+         "fullscreen_exit")]]
+     [form/textarea key]]))
 
 (defn editor
   [key]

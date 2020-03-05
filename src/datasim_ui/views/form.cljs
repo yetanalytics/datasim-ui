@@ -53,7 +53,7 @@
     {:class (cond-> "options"
               @(subscribe [:options/visible])
               (str " visible"))}
-    [:h6  "Run Options"]
+    [:h4  "Run Options"]
     [textfield :options/endpoint]
     [textfield :options/api-key]
     [textfield :options/api-secret-key]

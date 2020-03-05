@@ -40,7 +40,7 @@
                                            "input.json"))}
              "Export File"]
             [:div.spacer]
-            [:button.mdc-icon-button.material-icons
+            [:button.mdc-icon-button.material-icons.icon
              {:on-click (fn [e]
                           (fns/ps-event e)
                           (dispatch [:options/toggle]))}

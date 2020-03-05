@@ -85,3 +85,25 @@ body {
 .options.visible {
     max-height: 300px;
 }
+
+.CodeMirror {
+    background: #F8F8F8;
+}
+
+.editor.max > .CodeMirror {
+    height: 450px;
+}
+
+.icon {
+    height:  28px;
+    width:   28px;
+    padding: 0px;
+    margin:  0px 12px;
+}
+
+.icon-mini {
+    height:  24px;
+    width:   24px;
+    padding: 0px;
+    margin:  0px 12px;
+}
