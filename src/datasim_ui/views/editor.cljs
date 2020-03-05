@@ -20,7 +20,7 @@
         (for [input inputs]
           [editor-tab input (= sub-key (first input))])))
 
-(defn editor
+(defn editor*
   [key size]
   (let [input-name (get inputs key)
         id         (str input-name "-input")]
@@ -68,10 +68,9 @@
           "fullscreen_exit")]]
       [form/textarea key]]]))
 
-(defn editor-min
-  [sub-key]
-  [editor sub-key :min])
-
-(defn editor-max
-  [sub-key]
-  [editor sub-key :max])
+(defn editor
+  [key]
+  (if-let [?focus @(subscribe [:db/focus])]
+    (if (= key ?focus)
+      [editor* key :max])
+    [editor* key :min]))

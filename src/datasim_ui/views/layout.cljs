@@ -49,12 +49,10 @@
              {:type "submit"}
              "Run"]]]
           [form/options]]
-         (if-let [sub-key @(subscribe [:db/focus])]
-           [[editor/editor-max sub-key]]
-           [[editor/editor-min :input/profiles]
-            [editor/editor-min :input/personae]
-            [editor/editor-min :input/alignments]
-            [editor/editor-min :input/parameters]]))])
+         [[editor/editor :input/profiles]
+          [editor/editor :input/personae]
+          [editor/editor :input/alignments]
+          [editor/editor :input/parameters]])])
 
 (defn top-menu
   []

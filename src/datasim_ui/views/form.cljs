@@ -21,7 +21,7 @@
     body]])
 
 (defn textarea
-  [key]    
+  [key]
   [cm/codemirror
    {:mode              "application/json"
     :theme             "default"
