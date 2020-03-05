@@ -1,9 +1,10 @@
 (ns datasim-ui.views.form
-  (:require [re-mdl.core                 :as mdl]
-            [re-frame.core               :refer [subscribe dispatch]]
+  (:require [re-frame.core               :refer [subscribe dispatch]]
             [re-codemirror.core          :as cm]
             [datasim-ui.functions        :as fns]
             [datasim-ui.util             :as util]
+            [datasim-ui.views.textfield  :as textfield]
+            [datasim-ui.views.checkbox   :as checkbox]
             [cljsjs.codemirror.mode.javascript]
             [cljsjs.codemirror.addon.lint.javascript-lint]
             [cljsjs.codemirror.addon.lint.json-lint]
@@ -37,30 +38,25 @@
 
 (defn textfield
   [key]
-  [mdl/textfield
-   :input-attr      {:name (util/input-name key)}
-   :floating-label? true
-   :label           (util/label key)
-   :model           @(subscribe [key])
-   :handler-fn      #(dispatch [key %])])
+  [textfield/textfield
+   :name      (util/input-name key)
+   :label     (util/label key)
+   :value     @(subscribe [key])
+   :on-change (fn [e]
+                (fns/ps-event e)
+                (dispatch [key (.. e -target -value)]))])
 
 (defn options
   []
-  [mdl/cell
-   :class "options-container"
-   :col   12
-   :children
-   [[:div
-     {:class (cond-> "options"
-               @(subscribe [:options/visible])
-               (str " visible"))}
-     [:h6  "Run Options"]
-     [textfield :options/endpoint]
-     [textfield :options/api-key]
-     [textfield :options/api-secret-key]
-     [mdl/toggle-checkbox
-      :input-attr     {:name "send-to-lrs"}
-      :model          @(subscribe [:options/send-to-lrs])
-      :label          "Send Statements to LRS"'
-      :ripple-effect? true
-      :handler-fn     #(dispatch [:options/send-to-lrs])]]]])
+  [:div.cell-12
+   [:div
+    {:class (cond-> "options"
+              @(subscribe [:options/visible])
+              (str " visible"))}
+    [:h6  "Run Options"]
+    [textfield :options/endpoint]
+    [textfield :options/api-key]
+    [textfield :options/api-secret-key]
+    [checkbox/checkbox
+     :name  "send-to-lrs"
+     :label "Send Statements to LRS"]]])

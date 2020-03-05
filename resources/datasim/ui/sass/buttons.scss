@@ -50,6 +50,11 @@
   transition-duration: .1s;
 }
 
+.minorbutton:disabled {
+  background-color: #AAAAAA;
+  color:            #000000;
+}
+
  .minorbutton:active{
   -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
   -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);

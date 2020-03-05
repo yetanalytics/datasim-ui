@@ -2,9 +2,6 @@
  :deps    {org.clojure/clojurescript {:mvn/version "1.10.520"}
            reagent                   {:mvn/version "0.8.1"}
            re-frame                  {:mvn/version "0.10.6"}
-           com.yetanalytics/re-mdl   {:mvn/version "0.1.8"
-                                      :exclusions  [reagent
-                                                    cljsjs/react-with-addons]}
            re-codemirror             {:git/url    "git@github.com:yetanalytics/re-codemirror.git"
                                       :sha        "1408fc5cb3cc0f5800a7e498d3e6dbaac6d981ad"
                                       :exclusions [org.clojure/clojurescript

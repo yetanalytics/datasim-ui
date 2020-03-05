@@ -1,9 +1,9 @@
 (ns datasim-ui.functions
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [re-mdl.core      :as mdl]
-            [re-frame.core    :refer [subscribe dispatch]]
-            [cljs-http.client :as http]
-            [cljs.core.async  :refer [<!]]))
+  (:require [re-frame.core             :refer [subscribe dispatch]]
+            [cljs-http.client          :as http]
+            [cljs.core.async           :refer [<!]]
+            [datasim-ui.views.snackbar :refer [snackbar!]]))
 
 (defn ps-event
   "Helper function that will prevent default action
@@ -75,12 +75,8 @@
                                                 :query-params      {"url" (js/encodeURIComponent @(subscribe [:dialog.form/text :url]))}}))]
                              (condp = (:status response)
                                200 (dispatch [k (:body response)])
-                               400 (mdl/snackbar! :message "URL was malformed"
-                                                  :timeout 5000)
-                               406 (mdl/snackbar! :message "Client Error"
-                                                  :timeout 5000)
-                               404 (mdl/snackbar! :message "Could not find URL"
-                                                  :timeout 5000)
-                               500 (mdl/snackbar! :message "An error occured"
-                                                  :timeout 5000))))
+                               400 (snackbar! "URL was malformed")
+                               406 (snackbar! "Client Error")
+                               404 (snackbar! "Could not find URL")
+                               500 (snackbar! "An error occured"))))
                        (dispatch [:dialog/close]))}]))

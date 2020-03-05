@@ -1,7 +1,7 @@
 (ns datasim-ui.handlers
-  (:require [re-mdl.core   :as mdl]
-            [re-frame.core :as re-frame]
-            [datasim-ui.db :as db :refer [check-spec-interceptor]]))
+  (:require [re-frame.core             :as re-frame]
+            [datasim-ui.views.snackbar :refer [snackbar!]]
+            [datasim-ui.db             :as db :refer [check-spec-interceptor]]))
 
 (def global-interceptors
   [check-spec-interceptor])
@@ -34,8 +34,7 @@
                :input/parameters parameters}))
      (catch js/Error. e
        (do
-         (mdl/snackbar! :message "Error parsing JSON Input"
-                        :timeout 5000)
+         (snackbar! "Error parsing JSON Input")
          db)))))
 
 (re-frame/reg-event-db
