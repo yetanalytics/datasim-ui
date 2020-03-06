@@ -11,9 +11,13 @@
    :options/api-key        "API Key"
    :options/api-secret-key "API Secret Key"})
 
+(def basic-auth
+  {:options/username "Username"
+   :options/password "Password"})
+
 (defn label
   [key]
-  (-> (get (merge inputs options)
+  (-> (get (merge inputs options basic-auth)
            key)))
 
 (defn input-name

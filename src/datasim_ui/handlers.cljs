@@ -85,6 +85,20 @@
               not)))
 
 (re-frame/reg-event-db
+ :options/show
+ global-interceptors
+ (fn [db _]
+   (assoc-in db [::db/options :options/visible]
+             true)))
+
+(re-frame/reg-event-db
+ :options/hide
+ global-interceptors
+ (fn [db _]
+   (assoc-in db [::db/options :options/visible]
+             false)))
+
+(re-frame/reg-event-db
  :options/endpoint
  global-interceptors
  (fn [db [_ endpoint]]
@@ -111,6 +125,20 @@
  (fn [db _]
    (update-in db [::db/options :options/send-to-lrs]
               not)))
+
+(re-frame/reg-event-db
+ :options/username
+ global-interceptors
+ (fn [db [_ username]]
+   (assoc-in db [::db/options :options/username]
+             username)))
+
+(re-frame/reg-event-db
+ :options/password
+ global-interceptors
+ (fn [db [_ password]]
+   (assoc-in db [::db/options :options/password]
+             password)))
 
 (re-frame/reg-event-db
  :dialog/open

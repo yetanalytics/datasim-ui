@@ -81,6 +81,20 @@
    (:options/send-to-lrs options)))
 
 (reg-sub
+ :options/username
+ (fn [_ _]
+   (subscribe [:db/options]))
+ (fn [options _]
+   (:options/username options)))
+
+(reg-sub
+ :options/password
+ (fn [_ _]
+   (subscribe [:db/options]))
+ (fn [options _]
+   (:options/password options)))
+
+(reg-sub
  :db/dialog
  (fn [db _]
    (::db/dialog db)))

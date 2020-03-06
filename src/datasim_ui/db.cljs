@@ -23,11 +23,15 @@
 (s/def :options/api-secret-key string?)
 (s/def :options/send-to-lrs boolean?)
 (s/def :options/download boolean?)
+(s/def :options/username string?)
+(s/def :options/password string?)
 (s/def ::options (s/keys :req [:options/visible]
                          :opt [:options/endpoint
                                :options/api-key
                                :options/api-secret-key
-                               :options/send-to-lrs]))
+                               :options/send-to-lrs
+                               :options/username
+                               :options/password]))
 
 (s/def :dialog/open boolean?)
 (s/def :dialog/title string?)

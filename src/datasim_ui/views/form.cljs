@@ -1,10 +1,12 @@
 (ns datasim-ui.views.form
-  (:require [re-frame.core               :refer [subscribe dispatch]]
+  (:require [goog.crypt.base64           :refer [encodeString]]
+            [re-frame.core               :refer [subscribe dispatch]]
             [re-codemirror.core          :as cm]
             [datasim-ui.functions        :as fns]
             [datasim-ui.util             :as util]
             [datasim-ui.views.textfield  :as textfield]
             [datasim-ui.views.checkbox   :as checkbox]
+            [datasim-ui.views.snackbar   :refer [snackbar!]]
             [cljsjs.codemirror.mode.javascript]
             [cljsjs.codemirror.addon.lint.javascript-lint]
             [cljsjs.codemirror.addon.lint.json-lint]
@@ -15,9 +17,40 @@
   [body]
   [:div
    [:form#generate-form
-    {:action  "http://127.0.0.1:9090/api/v1/generate"
-     :method  "post"
-     :encType "multipart/form-data"}
+    ;; to properly send a form with basic auth, a regular form cant be used.
+    ;; Use an XHR instead so headers can be set.
+    {:encType  "multipart/form-data"
+     :onSubmit (fn [e]
+                 (fns/ps-event e)
+                 ;; Generate form data directly from the form itself
+                 (let [form      (js/document.getElementById "generate-form")
+                       form-data (js/FormData. form)
+                       xhr       (js/XMLHttpRequest.)
+                       username  @(subscribe [:options/username])
+                       password  @(subscribe [:options/password])]
+                   (.open xhr "POST" "http://127.0.0.1:9090/api/v1/generate")
+                   ;; Only attach auth info if provided
+                   (when-not (or (clojure.string/blank? username)
+                                 (clojure.string/blank? password))
+                     (let [auth (encodeString (str username ":" password))]
+                       (.setRequestHeader xhr "Authorization" (str "Basic " auth))))
+                   (.setRequestHeader xhr "Access-Control-Allow-Origin" "*")
+                   ;; XHR needs to be a blob to be able to download
+                   (set! (.-responseType xhr) "blob")
+                   (set! (.-onload xhr) (fn [e]
+                                          ;; Handle possible auth errors,
+                                          ;; or just download the blob result
+                                          (condp = (.. e -target -status)
+                                            401 (do
+                                                  (dispatch [:options/show])
+                                                  (snackbar! "No Datasim API Credentials Provided"))
+                                            403 (do
+                                                  (dispatch [:options/show])
+                                                  (snackbar! "Invalid Datasim API Credentials"))
+                                            200 (fns/export-file e
+                                                                 (.. e -target -response)
+                                                                 "simulation.json"))))
+                   (.send xhr form-data)))}
     body]])
 
 (defn textarea
@@ -37,14 +70,16 @@
                         (dispatch [key (.getValue cm)]))}}])
 
 (defn textfield
-  [key]
-  [textfield/textfield
-   :name      (util/input-name key)
-   :label     (util/label key)
-   :value     @(subscribe [key])
-   :on-change (fn [e]
-                (fns/ps-event e)
-                (dispatch [key (.. e -target -value)]))])
+  [key & {:keys [form?]
+          :or   {form? false}}]
+  (cond-> [textfield/textfield
+           :id        (util/input-name key)
+           :label     (util/label key)
+           :value     @(subscribe [key])
+           :on-change (fn [e]
+                        (fns/ps-event e)
+                        (dispatch [key (.. e -target -value)]))]
+    form? (conj :name (util/input-name key))))
 
 (defn options
   []
@@ -53,10 +88,14 @@
     {:class (cond-> "options"
               @(subscribe [:options/visible])
               (str " visible"))}
-    [:h4  "Run Options"]
+    [:h4 "Credentials"]
+    [textfield :options/username :form? false]
+    [textfield :options/password :form? false]
+    [:h4 "Run Options"]
     [textfield :options/endpoint]
     [textfield :options/api-key]
     [textfield :options/api-secret-key]
+
     [checkbox/checkbox
      :name  "send-to-lrs"
      :label "Send Statements to LRS"]]])
