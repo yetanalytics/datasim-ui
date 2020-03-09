@@ -15086,7 +15086,8 @@ body {
   overflow: hidden; }
 
 .options.visible {
-  max-height: 300px; }
+  max-height: 300px;
+  overflow: auto; }
 
 .CodeMirror {
   background: #F8F8F8; }
