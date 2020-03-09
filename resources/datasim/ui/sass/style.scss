@@ -84,6 +84,7 @@ body {
 
 .options.visible {
     max-height: 300px;
+    overflow:   auto;
 }
 
 .CodeMirror {

@@ -89,14 +89,17 @@
     {:class (cond-> "options"
               @(subscribe [:options/visible])
               (str " visible"))}
-    [:h4 "Credentials"]
-    [textfield :options/username :form? false]
-    [textfield :options/password :form? false]
-    [:h4 "Run Options"]
-    [textfield :options/endpoint]
-    [textfield :options/api-key]
-    [textfield :options/api-secret-key]
+    [:div.grid-inner
+     [:div.cell-6
+      [:h4 "Credentials"]
+      [textfield :options/username :form? false]
+      [textfield :options/password :form? false]]
+     [:div.cell-6
+      [:h4 "Run Options"]
+      [textfield :options/endpoint]
+      [textfield :options/api-key]
+      [textfield :options/api-secret-key]
 
-    [checkbox/checkbox
-     :name  "send-to-lrs"
-     :label "Send Statements to LRS"]]])
+      [checkbox/checkbox
+       :name  "send-to-lrs"
+       :label "Send Statements to LRS"]]]]])
