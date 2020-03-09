@@ -1,5 +1,0 @@
-{:watch-dirs          ["src"]
- :css-dirs            ["resources/public/css"]
- :open-url            false
- :ring-server-options {:port 9091}
- :log-file            "figwheel-main.log"}
