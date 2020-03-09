@@ -24,11 +24,17 @@
      :onSubmit (fn [e]
                  (fns/ps-event e)
                  ;; Generate form data directly from the form itself
-                 (let [form      (js/document.getElementById "generate-form")
-                       form-data (js/FormData. form)
+                 (let [form-data (js/FormData.)
                        xhr       (js/XMLHttpRequest.)
                        username  @(subscribe [:options/username])
                        password  @(subscribe [:options/password])]
+                   (.append form-data "profiles" @(subscribe [:input/profiles]))
+                   (.append form-data "personae" @(subscribe [:input/personae]))
+                   (.append form-data "alignments" @(subscribe [:input/alignments]))
+                   (.append form-data "parameters" @(subscribe [:input/parameters]))
+                   (.append form-data "lrs-endpoint" @(subscribe [:options/endpoint]))
+                   (.append form-data "api-key" @(subscribe [:options/api-key]))
+                   (.append form-data "api-secret-key" @(subscribe [:options/api-secret-key]))
                    (.open xhr "POST" (str api "/generate"))
                    ;; Only attach auth info if provided
                    (when-not (or (clojure.string/blank? username)
