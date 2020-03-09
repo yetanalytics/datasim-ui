@@ -11,3 +11,4 @@ resources/public/css/*.css.map
 node_modules/
 package.json
 package-lock.json
+gh-pages/

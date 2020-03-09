@@ -1,4 +1,4 @@
-{:closure-defines {datasim-ui.env/api "http://localhost:9090/api/v1"}
+{:closure-defines {datasim-ui.env/api "https://datasim-api.yetanalytics.io/api/v1"}
  :main            datasim-ui.core
  :install-deps    true
  :npm-deps        {"material-components-web" "0.41.1"}}

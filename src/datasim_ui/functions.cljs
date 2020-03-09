@@ -3,6 +3,7 @@
   (:require [re-frame.core             :refer [subscribe dispatch]]
             [cljs-http.client          :as http]
             [cljs.core.async           :refer [<!]]
+            [datasim-ui.env            :refer [api]]
             [datasim-ui.views.snackbar :refer [snackbar!]]))
 
 (defn ps-event
@@ -69,7 +70,7 @@
                             :text  ""}}
               :save  (fn []
                        (go (let [response 
-                                 (<! (http/get "http://localhost:9090/api/v1/download-url"
+                                 (<! (http/get (str api "/download-url")
                                                {:with-credentials? false
                                                 :headers           {"Access-Control-Allow-Origin" "*"}
                                                 :query-params      {"url" (js/encodeURIComponent @(subscribe [:dialog.form/text :url]))}}))]

@@ -15,4 +15,8 @@
                         :main-opts  ["-m" "com.yetanalytics.sassenach"
                                      "resources/datasim/ui/sass/style.scss"
                                      "resources/public/css/style.css"
-                                     "node_modules"]}}}
+                                     "node_modules"]}
+           :build-prod {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}}
+                        :main-opts  ["-m" "figwheel.main" "-O" "simple" "-bo" "prod"]}
+           :build-sass {:extra-deps {deraen/sass4clj {:mvn/version "0.3.1"}}
+                        :main-opts  ["-e" "(require,'sass4clj.core),(sass4clj.core/sass-compile-to-file,\"resources/datasim/ui/sass/style.scss\",\"resources/public/css/style.css\",{:source-map,false,:source-paths,[\"node_modules\"]})"]}}}

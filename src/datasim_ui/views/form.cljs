@@ -2,6 +2,7 @@
   (:require [goog.crypt.base64           :refer [encodeString]]
             [re-frame.core               :refer [subscribe dispatch]]
             [re-codemirror.core          :as cm]
+            [datasim-ui.env              :refer [api]]
             [datasim-ui.functions        :as fns]
             [datasim-ui.util             :as util]
             [datasim-ui.views.textfield  :as textfield]
@@ -28,7 +29,7 @@
                        xhr       (js/XMLHttpRequest.)
                        username  @(subscribe [:options/username])
                        password  @(subscribe [:options/password])]
-                   (.open xhr "POST" "http://127.0.0.1:9090/api/v1/generate")
+                   (.open xhr "POST" (str api "/generate"))
                    ;; Only attach auth info if provided
                    (when-not (or (clojure.string/blank? username)
                                  (clojure.string/blank? password))
