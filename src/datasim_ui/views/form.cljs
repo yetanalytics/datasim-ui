@@ -35,6 +35,7 @@
                    (.append form-data "lrs-endpoint" @(subscribe [:options/endpoint]))
                    (.append form-data "api-key" @(subscribe [:options/api-key]))
                    (.append form-data "api-secret-key" @(subscribe [:options/api-secret-key]))
+                   (.append form-data "send-to-lrs" @(subscribe [:options/send-to-lrs]))
                    (.open xhr "POST" (str api "/generate"))
                    ;; Only attach auth info if provided
                    (when-not (or (clojure.string/blank? username)
