@@ -31,7 +31,9 @@ The following actions are possible within the UI:
 ## System Requirements
 
 Java (JDK 8+, OpenJDK or Oracle)
+
 Clojure (1.10.1+)
+
 NodeJS (10.x+)
 
 ## Usage
