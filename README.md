@@ -41,10 +41,12 @@ NodeJS (10.x+)
 To run in dev, run the following command from this directory:
 
     $ clojure -A:fig
+    $ clojure -A:build-sass
 
 or alternatively use the make command:
 
     $ make fig
+    $ make build-sass
 
 Once this is complete, the UI will be launched at http://localhost:9091, pointing to a DATASIM API at the default API location (http://localhost:9090/api/v1).
 
