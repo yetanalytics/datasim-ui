@@ -41,6 +41,25 @@
    (::db/focus db)))
 
 (reg-sub
+ :db/validation
+ (fn [db _]
+   (::db/validation db)))
+
+(reg-sub
+ :validation/visible
+ (fn [_ _]
+   (subscribe [:db/validation]))
+ (fn [validation _]
+   (:validation/visible validation)))
+
+(reg-sub
+ :validation/data
+ (fn [_ _]
+   (subscribe [:db/validation]))
+ (fn [validation _]
+   (:validation/data validation)))
+
+(reg-sub
  :db/options
  (fn [db _]
    (::db/options db)))

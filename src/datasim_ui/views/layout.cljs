@@ -48,7 +48,8 @@
             [:button.majorbutton
              {:type "submit"}
              "Run"]]]
-          [form/options]]
+          [form/options]
+          [form/validation]]
          [[editor/editor :input/profiles]
           [editor/editor :input/personae]
           [editor/editor :input/alignments]
@@ -57,7 +58,7 @@
 (defn top-menu
   []
   [:div.top-menu
-   [:a {:href "#/"}  
+   [:a {:href "#/"}
     [:img {:src "img/datasim_logo.png"}]]
    [:a {:href "https://github.com/yetanalytics/datasim"} "Contribute on GitHub"]])
 
@@ -78,7 +79,7 @@
   []
   [:div.datasim-app
    [:div.datasim-app-body
-    [top-menu] 
+    [top-menu]
     [form/form
      [content]]
     [dialog/dialog-container]]

@@ -15,7 +15,9 @@
               {:options/visible     false
                :options/send-to-lrs false})
        (assoc ::db/dialog
-              {:dialog/open false}))))
+              {:dialog/open false})
+       (assoc ::db/validation
+              {:validation/visible false}))))
 
 (re-frame/reg-event-db
  :input/all
@@ -85,6 +87,28 @@
               not)))
 
 (re-frame/reg-event-db
+  :validation/show
+  global-interceptors
+  (fn [db _]
+    (assoc-in db [::db/validation :validation/visible]
+              true)))
+
+(re-frame/reg-event-db
+ :validation/hide
+ global-interceptors
+ (fn [db _]
+   (assoc-in db [::db/validation :validation/visible]
+             false)))
+
+(re-frame/reg-event-db
+ :validation/data
+ global-interceptors
+ (fn [db [_ data]]
+   (assoc-in db [::db/validation :validation/data]
+             data)))
+
+
+(re-frame/reg-event-db
  :options/show
  global-interceptors
  (fn [db _]
@@ -144,7 +168,7 @@
  :dialog/open
  global-interceptors
  (fn [db [_ {:keys [title form save]}]]
-   (assoc db ::db/dialog 
+   (assoc db ::db/dialog
           (cond-> {:dialog/open  true
                    :dialog/title title}
             form
@@ -164,6 +188,6 @@
  (fn [db [_ id text]]
    (assoc-in db [::db/dialog
                  :dialog/form
-                 id 
+                 id
                  :text]
              text)))

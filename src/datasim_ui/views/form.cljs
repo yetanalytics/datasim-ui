@@ -3,6 +3,7 @@
             [re-frame.core               :refer [subscribe dispatch]]
             [re-codemirror.core          :as cm]
             [datasim-ui.env              :refer [api]]
+            [clojure.edn                 :as edn]
             [datasim-ui.functions        :as fns]
             [datasim-ui.util             :as util]
             [datasim-ui.views.textfield  :as textfield]
@@ -50,6 +51,14 @@
                                           ;; Handle possible auth errors,
                                           ;; or just download the blob result
                                           (condp = (.. e -target -status)
+                                            400 (do
+                                                  (dispatch [:validation/show])
+                                                  (dispatch [:options/hide])
+                                                  (-> (js/Promise.resolve
+                                                       (.text (.. e -target -response)))
+                                                      (.then #(dispatch [:validation/data
+                                                                         (edn/read-string %)])))
+                                                  (snackbar! "Validation Errors Detected, see Validation Results"))
                                             401 (do
                                                   (dispatch [:options/show])
                                                   (snackbar! "No Datasim API Credentials Provided"))
@@ -111,3 +120,18 @@
       [checkbox/checkbox
        :name  "send-to-lrs"
        :label "Send Statements to LRS"]]]]])
+
+(defn validation
+  []
+  [:div.cell-12
+   [:div
+    {:class (cond-> "validation"
+              @(subscribe [:validation/visible])
+              (str " visible"))}
+    [:div.grid-inner
+     [:div.cell-12
+      [:h3 "Validation Results"]
+      (for [error @(subscribe [:validation/data])]
+        [:div {:class "validation-result"}
+         [:span
+          (str error)]])]]]])

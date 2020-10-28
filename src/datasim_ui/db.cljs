@@ -33,6 +33,11 @@
                                :options/username
                                :options/password]))
 
+(s/def :validation/visible boolean?)
+(s/def :validation/data some?)
+(s/def ::validation (s/keys :req [:validation/visible]
+                            :opt [:validation/data]))
+
 (s/def :dialog/open boolean?)
 (s/def :dialog/title string?)
 (s/def :form/id keyword?)
@@ -50,7 +55,8 @@
                               :dialog/save]))
 
 (s/def ::db (s/keys :req [::options
-                          ::dialog]
+                          ::dialog
+                          ::validation]
                     :opt [::input
                           ::focus]))
 

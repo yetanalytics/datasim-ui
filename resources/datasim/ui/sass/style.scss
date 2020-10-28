@@ -87,6 +87,24 @@ body {
     overflow:   auto;
 }
 
+.validation {
+  max-height: 0px;
+  transition: max-height 200ms ease-in;
+  overflow:   hidden;
+}
+
+.validation.visible {
+  max-height: 300px;
+  overflow:   auto;
+}
+
+.validation-result {
+  white-space: pre-line;
+  background-color: antiquewhite;
+  font-size: small;
+  margin-bottom: 20px;
+}
+
 .CodeMirror {
     background: #F8F8F8;
 }
