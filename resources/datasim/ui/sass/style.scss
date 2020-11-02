@@ -98,6 +98,22 @@ body {
   overflow:   auto;
 }
 
+.validation-details {
+  margin-top: 20px;
+  font-size: small;
+  color: darkred;
+  margin-left: 20px;
+  font-family: monospace;
+  max-height: 0px;
+  transition: max-height 200ms ease-in;
+  overflow:   hidden;
+}
+
+.validation-details.visible {
+  max-height: 300px;
+  overflow:   auto;
+}
+
 .validation-result {
   white-space: pre-line;
   background-color: antiquewhite;
