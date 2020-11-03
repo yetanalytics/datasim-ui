@@ -132,10 +132,12 @@
      [:div.cell-12
       [:h3 "Validation Results"]
       (for [error @(subscribe [:validation/data])]
-        [:div {:class "validation-result" :key (str "error-result-" (:id error))}
+        [:div {:class "validation-result" :key (str "error-result-"
+                                                    (:error/id error))}
          [:span
-          [:a {:on-click #(dispatch [:validation/toggle-error (:id error)])}
-           (str (if (:visible error) "^" ">") " Error Detected in: " (:path error))]]
+          [:a {:on-click #(dispatch [:validation/toggle-error (:error/id error)])}
+           (str (if (:error/visible error) "^" ">") " Error Detected in: "
+                (:error/path error))]]
          [:div {:class (cond-> "validation-details"
-                          (:visible error) (str " visible"))}
-          (str (:text error))]])]]]])
+                          (:error/visible error) (str " visible"))}
+          (str (:error/text error))]])]]]])

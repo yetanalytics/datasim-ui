@@ -33,8 +33,19 @@
                                :options/username
                                :options/password]))
 
-(s/def :validation/visible boolean?)
-(s/def :validation/data some?)
+(s/def :error/visible boolean?)
+(s/def :error/id uuid?)
+(s/def :error/text string?)
+(s/def :error/path
+  (s/every keyword?))
+(s/def :error/visible boolean?)
+(s/def ::error (s/keys :req [:error/id
+                             :error/text
+                             :error/path
+                             :error/visible]))
+(s/def :validation/data
+  (s/every ::error))
+
 (s/def ::validation (s/keys :req [:validation/visible]
                             :opt [:validation/data]))
 

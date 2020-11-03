@@ -103,26 +103,27 @@
 (re-frame/reg-event-db
  :validation/data
  global-interceptors
- (fn [db [_ data]]
+ (fn [db [_ errors]]
    (assoc-in db [::db/validation :validation/data]
              (map (fn [error]
-                    (merge {:visible false
-                            :id (random-uuid)}
-                           error))
-                  data))))
+                    {:error/visible false
+                     :error/id (random-uuid)
+                     :error/path (:path error)
+                     :error/text (:text error)})
+                  errors))))
 
 (re-frame/reg-event-db
  :validation/toggle-error
  global-interceptors
  (fn [db [_ error-id]]
-   (assoc-in db [::db/validation :validation/data]
-             (map (fn [error]
-                    (if (= error-id (:id error))
-                      (merge error {:visible
-                                    (not (:visible error))})
-                      error))
-                  (get-in db [::db/validation
-                              :validation/data])))))
+   (update-in db [::db/validation :validation/data]
+              (fn [errors]
+                (map (fn [error]
+                       (if (= error-id (:error/id error))
+                         (merge error {:error/visible
+                                       (not (:error/visible error))})
+                         error))
+                     errors)))))
 
 (re-frame/reg-event-db
  :options/show
