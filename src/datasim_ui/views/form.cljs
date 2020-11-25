@@ -65,9 +65,11 @@
                                             403 (do
                                                   (dispatch [:options/show])
                                                   (snackbar! "Invalid Datasim API Credentials"))
-                                            200 (fns/export-file e
-                                                                 (.. e -target -response)
-                                                                 "simulation.json"))))
+                                            200 (do
+                                                  (dispatch [:validation/hide])
+                                                  (fns/export-file e
+                                                                   (.. e -target -response)
+                                                                   "simulation.json")))))
                    (.send xhr form-data)))}
     body]])
 

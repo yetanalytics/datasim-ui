@@ -36,8 +36,7 @@
 (s/def :error/visible boolean?)
 (s/def :error/id uuid?)
 (s/def :error/text string?)
-(s/def :error/path
-  (s/every keyword?))
+(s/def :error/path (s/every any?))
 (s/def :error/visible boolean?)
 (s/def ::error (s/keys :req [:error/id
                              :error/text
@@ -70,6 +69,7 @@
                           ::validation]
                     :opt [::input
                           ::focus]))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; VALIDATOR
