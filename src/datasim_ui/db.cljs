@@ -33,6 +33,21 @@
                                :options/username
                                :options/password]))
 
+(s/def :error/visible boolean?)
+(s/def :error/id uuid?)
+(s/def :error/text string?)
+(s/def :error/path (s/every any?))
+(s/def :error/visible boolean?)
+(s/def ::error (s/keys :req [:error/id
+                             :error/text
+                             :error/path
+                             :error/visible]))
+(s/def :validation/data
+  (s/every ::error))
+
+(s/def ::validation (s/keys :req [:validation/visible]
+                            :opt [:validation/data]))
+
 (s/def :dialog/open boolean?)
 (s/def :dialog/title string?)
 (s/def :form/id keyword?)
@@ -50,9 +65,11 @@
                               :dialog/save]))
 
 (s/def ::db (s/keys :req [::options
-                          ::dialog]
+                          ::dialog
+                          ::validation]
                     :opt [::input
                           ::focus]))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; VALIDATOR

@@ -15,7 +15,9 @@
               {:options/visible     false
                :options/send-to-lrs false})
        (assoc ::db/dialog
-              {:dialog/open false}))))
+              {:dialog/open false})
+       (assoc ::db/validation
+              {:validation/visible false}))))
 
 (re-frame/reg-event-db
  :input/all
@@ -85,6 +87,45 @@
               not)))
 
 (re-frame/reg-event-db
+  :validation/show
+  global-interceptors
+  (fn [db _]
+    (assoc-in db [::db/validation :validation/visible]
+              true)))
+
+(re-frame/reg-event-db
+ :validation/hide
+ global-interceptors
+ (fn [db _]
+   (assoc-in db [::db/validation :validation/visible]
+             false)))
+
+(re-frame/reg-event-db
+ :validation/data
+ global-interceptors
+ (fn [db [_ errors]]
+   (assoc-in db [::db/validation :validation/data]
+             (map (fn [error]
+                    {:error/visible false
+                     :error/id (random-uuid)
+                     :error/path (:path error)
+                     :error/text (:text error)})
+                  errors))))
+
+(re-frame/reg-event-db
+ :validation/toggle-error
+ global-interceptors
+ (fn [db [_ error-id]]
+   (update-in db [::db/validation :validation/data]
+              (fn [errors]
+                (map (fn [error]
+                       (if (= error-id (:error/id error))
+                         (merge error {:error/visible
+                                       (not (:error/visible error))})
+                         error))
+                     errors)))))
+
+(re-frame/reg-event-db
  :options/show
  global-interceptors
  (fn [db _]
@@ -144,7 +185,7 @@
  :dialog/open
  global-interceptors
  (fn [db [_ {:keys [title form save]}]]
-   (assoc db ::db/dialog 
+   (assoc db ::db/dialog
           (cond-> {:dialog/open  true
                    :dialog/title title}
             form
@@ -164,6 +205,6 @@
  (fn [db [_ id text]]
    (assoc-in db [::db/dialog
                  :dialog/form
-                 id 
+                 id
                  :text]
              text)))
