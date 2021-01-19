@@ -27,8 +27,8 @@
     ;; Resolve the promise for the text file, should always be the 0th item.
     (.then (js/Promise.resolve
             (.text (aget (.. target -files) 0)))
-           #(do 
-              (dispatch [k %])
+           #(do
+              (dispatch [:input/set-data k %])
               ;; clear out the temp file holding the input, so it can be reused.
               (set! (.. target -value) "")))))
 
@@ -69,13 +69,13 @@
                             :label "URL"
                             :text  ""}}
               :save  (fn []
-                       (go (let [response 
+                       (go (let [response
                                  (<! (http/get (str api "/download-url")
                                                {:with-credentials? false
                                                 :headers           {"Access-Control-Allow-Origin" "*"}
                                                 :query-params      {"url" (js/encodeURIComponent @(subscribe [:dialog.form/text :url]))}}))]
                              (condp = (:status response)
-                               200 (dispatch [k (:body response)])
+                               200 (dispatch [:input/set-data k (:body response)])
                                400 (snackbar! "URL was malformed")
                                406 (snackbar! "Client Error")
                                404 (snackbar! "Could not find URL")

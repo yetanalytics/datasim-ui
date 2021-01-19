@@ -17,55 +17,80 @@
        (assoc ::db/dialog
               {:dialog/open false})
        (assoc ::db/validation
-              {:validation/visible false}))))
+              {:validation/visible false})
+       (assoc ::db/input
+              {:input/parameters
+               {:input-modes [{:mode     :basic
+                               :display  "Basic"
+                               :icon     "build"
+                               :selected false}
+                              {:mode     :advanced
+                               :display  "Advanced"
+                               :icon     "code"
+                               :selected true}]}
+               :input/alignments
+               {:input-modes [{:mode     :basic
+                               :display  "Basic"
+                               :icon     "build"
+                               :selected false}
+                              {:mode     :advanced
+                               :display  "Advanced"
+                               :icon     "code"
+                               :selected true}]}
+               :input/personae
+               {:input-modes [{:mode     :basic
+                               :display  "Basic"
+                               :icon     "build"
+                               :selected false}
+                              {:mode     :advanced
+                               :display  "Advanced"
+                               :icon     "code"
+                               :selected true}]}
+               :input/profiles
+               {:input-modes [{:mode     :advanced
+                               :display  "Profile"
+                               :icon     "code"
+                               :selected true}]}}))))
 
 (re-frame/reg-event-db
- :input/all
+ :input/set-data
  global-interceptors
- (fn [db [_ input]]
-   (try
-     (let [json       (js/JSON.parse input)
-           profiles   (js/JSON.stringify (.. json -profiles))
-           personae   (js/JSON.stringify (.. json -personae))
-           alignments (js/JSON.stringify (.. json -alignments))
-           parameters (js/JSON.stringify (.. json -parameters))]
-       (assoc db ::db/input
-              {:input/profiles   profiles
-               :input/personae   personae
-               :input/alignments alignments
-               :input/parameters parameters}))
-     (catch js/Error. e
-       (do
-         (snackbar! "Error parsing JSON Input")
-         db)))))
+ (fn [db [_ input-key data]]
+   (if (= input-key :input/all)
+     (try
+       (let [json       (js/JSON.parse data)
+             profiles   (js/JSON.stringify (.. json -profiles))
+             personae   (js/JSON.stringify (.. json -personae))
+             alignments (js/JSON.stringify (.. json -alignments))
+             parameters (js/JSON.stringify (.. json -parameters))]
+         (-> db
+             (assoc-in [::db/input :input/profiles :input-data] profiles)
+             (assoc-in [::db/input :input/parameters :input-data] parameters)
+             (assoc-in [::db/input :input/alignments :input-data] alignments)
+             (assoc-in [::db/input :input/personae :input-data] personae)))
+       (catch js/Error. e
+         (do
+           (snackbar! "Error parsing JSON Input")
+           db)))
+     (assoc-in db [::db/input input-key :input-data]
+               data))))
 
 (re-frame/reg-event-db
- :input/profiles
+ :input/set-modes
  global-interceptors
- (fn [db [_ profiles]]
-   (assoc-in db [::db/input :input/profiles]
-             profiles)))
+ (fn [db [_ input-key modes]]
+   (assoc-in db [::db/input input-key :input-modes]
+             modes)))
 
 (re-frame/reg-event-db
- :input/personae
+ :input/set-selected-mode
  global-interceptors
- (fn [db [_ personae]]
-   (assoc-in db [::db/input :input/personae]
-             personae)))
-
-(re-frame/reg-event-db
- :input/alignments
- global-interceptors
- (fn [db [_ alignments]]
-   (assoc-in db [::db/input :input/alignments]
-             alignments)))
-
-(re-frame/reg-event-db
- :input/parameters
- global-interceptors
- (fn [db [_ parameters]]
-   (assoc-in db [::db/input :input/parameters]
-             parameters)))
+ (fn [db [_ input-key mode-key]]
+   (let [modes (get-in db [::db/input input-key :input-modes])]
+     (assoc-in db [::db/input input-key :input-modes]
+               (map (fn [mode]
+                      (assoc-in mode [:selected] (= (:mode mode) mode-key)))
+                    modes)))))
 
 (re-frame/reg-event-db
  :focus/set

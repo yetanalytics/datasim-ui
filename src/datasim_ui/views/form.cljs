@@ -13,7 +13,8 @@
             [cljsjs.codemirror.addon.lint.javascript-lint]
             [cljsjs.codemirror.addon.lint.json-lint]
             [cljsjs.codemirror.addon.edit.matchbrackets]
-            [cljsjs.codemirror.addon.edit.closebrackets]))
+            [cljsjs.codemirror.addon.edit.closebrackets]
+            (clojure.pprint              :refer [pprint])))
 
 (defn form
   [body]
@@ -29,10 +30,10 @@
                        xhr       (js/XMLHttpRequest.)
                        username  @(subscribe [:options/username])
                        password  @(subscribe [:options/password])]
-                   (.append form-data "profiles" @(subscribe [:input/profiles]))
-                   (.append form-data "personae" @(subscribe [:input/personae]))
-                   (.append form-data "alignments" @(subscribe [:input/alignments]))
-                   (.append form-data "parameters" @(subscribe [:input/parameters]))
+                   (.append form-data "profiles" (:input-data @(subscribe [:input/profiles])))
+                   (.append form-data "personae" (:input-data @(subscribe [:input/personae])))
+                   (.append form-data "alignments" (:input-data @(subscribe [:input/alignments])))
+                   (.append form-data "parameters" (:input-data @(subscribe [:input/parameters])))
                    (.append form-data "lrs-endpoint" @(subscribe [:options/endpoint]))
                    (.append form-data "api-key" @(subscribe [:options/api-key]))
                    (.append form-data "api-secret-key" @(subscribe [:options/api-secret-key]))
@@ -85,9 +86,9 @@
     :gutters           ["CodeMirror-link-markers"]
     :lint              true}
    {:name   (util/input-name key)
-    :value  @(subscribe [key])
+    :value  (:input-data @(subscribe [key]))
     :events {"change" (fn [this [cm obj]]
-                        (dispatch [key (.getValue cm)]))}}])
+                        (dispatch [:input/set-data key (.getValue cm)]))}}])
 
 (defn textfield
   [key & {:keys [form?]
@@ -143,3 +144,29 @@
          [:div {:class (cond-> "validation-details"
                           (:error/visible error) (str " visible"))}
           (str (:error/text error))]])]]]])
+
+
+(defmulti edit-form (fn [key mode]
+                      [key (:mode mode)]))
+
+;; Default to error message
+(defmethod edit-form :default [_ _]
+  [:p
+   "No Editor For This Mode"])
+
+(defmethod edit-form [:input/parameters :advanced] [key mode]
+  [textarea key])
+
+(defmethod edit-form [:input/personae :advanced] [key mode]
+  [textarea key])
+
+(defmethod edit-form [:input/alignments :advanced] [key mode]
+  [textarea key])
+
+(defmethod edit-form [:input/profiles :advanced] [key mode]
+  (let [thing @(subscribe [:input/get-data :input/alignments])]
+    [textarea key]))
+
+(defmethod edit-form [:input/parameters :basic] [key mode]
+  [:p
+   "and now we build it here"])

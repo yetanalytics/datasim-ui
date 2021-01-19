@@ -2,7 +2,8 @@
   (:require [re-frame.core         :refer [dispatch subscribe]]
             [datasim-ui.views.form :as form]
             [datasim-ui.functions  :as fns]
-            [datasim-ui.util       :refer [inputs]]))
+            [datasim-ui.util       :refer [inputs]]
+            [clojure.pprint        :refer [pprint]]))
 
 (defn editor-tab
   [[k v] disabled?]
@@ -23,7 +24,9 @@
 (defn editor*
   [key size]
   (let [input-name (get inputs key)
-        id         (str input-name "-input")]
+        id         (str input-name "-input")
+        data       @(subscribe [:input/get-data key])
+        modes      @(subscribe [:input/get-modes key])]
     [:div.editor
      {:class (if (= :min size)
                "cell-6"
@@ -51,7 +54,7 @@
       [:button.minorbutton
        {:on-click (fn [e]
                     (fns/export-file e
-                                     (js/Blob. [@(subscribe [key])]
+                                     (js/Blob. [data]
                                                clj->js {:type "application/json"})
                                      (str input-name ".json")))}
        "Export File"]
@@ -65,7 +68,31 @@
        (if (= :min size)
          "fullscreen"
          "fullscreen_exit")]]
-     [form/textarea key]]))
+     [:div
+      (if (seq modes)
+        [:div.mdc-tab-bar
+         {:role "tablist"}
+         [:div.mdc-tab-scroller
+          [:div.mdc-tab-scroller__scroll-area
+           [:div.mdc-tab-scroller__scroll-content
+            (for [mode modes]
+              [:button
+               {:class (cond-> "mdc-tab"
+                         (:selected mode) (str " mdc-tab--active"))
+                :role "tab"
+                :aria-selected (:selected mode)
+                :tabindex "0"}
+               [:span.mdc-tab__content
+                (if (:icon mode)
+                  [:span.mdc-tab__icon.material-icons
+                   {:aria-hidden "true"}
+                   (:icon mode)])
+                [:span.mdc-tab__text-label
+                 (:display mode)]]
+               [:span.mdc-tab-indicator.mdc-tab-indicator
+                [:span.mdc-tab-indicator__content.mdc-tab-indicator__content--underline]]
+               [:span.mdc-tab__ripple]])]]]])
+      [form/edit-form key @(subscribe [:input/get-selected-mode key])]]]))
 
 (defn editor
   [key]

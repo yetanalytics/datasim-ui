@@ -8,6 +8,30 @@
    (::db/input db)))
 
 (reg-sub
+ :input/get-data
+ (fn [_ _]
+   (subscribe [:db/input]))
+ (fn [input [_ input-key]]
+   (get-in input [input-key :input-data])))
+
+(reg-sub
+ :input/get-modes
+ (fn [_ _]
+   (subscribe [:db/input]))
+ (fn [input [_ input-key]]
+   (get-in input [input-key :input-modes])))
+
+(reg-sub
+ :input/get-selected-mode
+ (fn [_ _]
+   (subscribe [:db/input]))
+ (fn [input [_ input-key]]
+   (let [modes (get-in input [input-key :input-modes])]
+     (first
+      (filter (fn [mode]
+                (:selected mode)) modes)))))
+
+(reg-sub
  :input/profiles
  (fn [_ _]
    (subscribe [:db/input]))

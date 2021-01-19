@@ -6,10 +6,32 @@
 ;; Spec to define the db shape
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(s/def :input/profiles string?)
-(s/def :input/personae string?)
-(s/def :input/alignments string?)
-(s/def :input/parameters string?)
+
+
+(s/def :editor-mode/mode keyword?)
+(s/def :editor-mode/display string?)
+(s/def :editor-mode/icon string?)
+(s/def :editor-mode/selected boolean?)
+(s/def ::editor-mode
+  (s/keys :req-un [:editor-mode/display
+                   :editor-mode/mode
+                   :editor-mode/selected]
+          :opt    [:editor-mode/icon]))
+
+(s/def ::input-modes
+  (s/every ::editor-mode))
+
+(s/def ::input-data
+  string?)
+
+(s/def ::input-map
+  (s/keys :opt [::input-modes
+                ::input-data]))
+
+(s/def :input/profiles ::input-map)
+(s/def :input/personae ::input-map)
+(s/def :input/alignments ::input-map)
+(s/def :input/parameters ::input-map)
 (s/def ::input (s/keys :opt [:input/profiles
                              :input/personae
                              :input/alignments
@@ -63,6 +85,7 @@
                         :opt [:dialog/title
                               :dialog/form
                               :dialog/save]))
+
 
 (s/def ::db (s/keys :req [::options
                           ::dialog

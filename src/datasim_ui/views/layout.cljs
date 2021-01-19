@@ -27,10 +27,10 @@
             [:button.minorbutton
              {:on-click (fn [e]
                           (fns/export-file e
-                                           (let [profiles   (js/JSON.parse @(subscribe [:input/profiles]))
-                                                 personae   (js/JSON.parse @(subscribe [:input/personae]))
-                                                 alignments (js/JSON.parse @(subscribe [:input/alignments]))
-                                                 parameters (js/JSON.parse @(subscribe [:input/parameters]))
+                                           (let [profiles   (js/JSON.parse (:input-data @(subscribe [:input/profiles])))
+                                                 personae   (js/JSON.parse (:input-data @(subscribe [:input/personae])))
+                                                 alignments (js/JSON.parse (:input-data @(subscribe [:input/alignments])))
+                                                 parameters (js/JSON.parse (:input-data @(subscribe [:input/parameters])))
                                                  json       #js {"profiles"   profiles
                                                                  "personae"   personae
                                                                  "alignments" alignments
