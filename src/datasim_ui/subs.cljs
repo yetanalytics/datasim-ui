@@ -38,9 +38,9 @@
    (subscribe [:db/input]))
  (fn [input [_ input-key & address]]
    (try
-     (let [input-data  (get-in input [input-key :input-data])
-           json        (js/JSON.parse input-data)
-           data        (js->clj json :keywordize-keys true)]
+     (let [input-json  (get-in input [input-key :input-data])
+           data        (js->clj (js/JSON.parse input-json)
+                            :keywordize-keys true)]
        (get-in data address))
      (catch js/Error. e
        (do

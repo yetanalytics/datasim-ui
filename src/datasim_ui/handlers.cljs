@@ -97,16 +97,19 @@
  :input/set-value
  global-interceptors
  (fn [db [_ input-key value & address]]
-   (pprint "got here")
-   (let [input-data (get-in db [::db/input input-key :input-data])
-         debug0     (pprint "input data, value, address")
-         json       (js/JSON.parse input-data)
-         data       (js->clj json :keywordize-keys true)
-         new-data   (assoc-in data address value)
-         new-json   (js/JSON.stringify (clj->js new-data))
-         debug1     (pprint [data new-data new-json])]
-     (assoc-in db [::db/input input-key :input-data]
-               new-json))))
+   (try
+     (let [input-json (get-in db [::db/input input-key :input-data])
+           data       (or (js->clj (js/JSON.parse input-json)
+                                   :keyworsize-keys true)
+                          {})
+           new-data   (assoc-in data address value)
+           new-json   (js/JSON.stringify (clj->js new-data))]
+       (assoc-in db [::db/input input-key :input-data]
+                 new-json))
+     (catch js/Error. e
+       (do
+         (pprint ["Parse Problem!" e])
+         db)))))
 
 (re-frame/reg-event-db
  :focus/set
