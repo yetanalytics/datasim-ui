@@ -1,6 +1,7 @@
 (ns datasim-ui.subs
   (:require [re-frame.core :refer [reg-sub subscribe]]
-            [datasim-ui.db :as db]))
+            [datasim-ui.db :as db]
+            [clojure.pprint :refer [pprint]]))
 
 (reg-sub
  :db/input
@@ -30,6 +31,26 @@
      (first
       (filter (fn [mode]
                 (:selected mode)) modes)))))
+
+(reg-sub
+ :input/get-value
+ (fn [_ _]
+   (subscribe [:db/input]))
+ (fn [input [_ input-key & address]]
+   (try
+     (let [input-data  (get-in input [input-key :input-data])
+           json        (js/JSON.parse input-data)
+           data        (js->clj json :keywordize-keys true)]
+       (get-in data address))
+     (catch js/Error. e
+       (do
+         (pprint ["Parse Problem!" e])
+         nil)))))
+
+(comment
+  (def thing1 {:arg [{:a 1 :b 2} {:a 3 :b 4}]})
+
+  )
 
 (reg-sub
  :input/profiles

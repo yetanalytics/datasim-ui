@@ -1,7 +1,8 @@
 (ns datasim-ui.handlers
   (:require [re-frame.core             :as re-frame]
             [datasim-ui.views.snackbar :refer [snackbar!]]
-            [datasim-ui.db             :as db :refer [check-spec-interceptor]]))
+            [datasim-ui.db             :as db :refer [check-spec-interceptor]]
+            [clojure.pprint            :refer [pprint]]))
 
 (def global-interceptors
   [check-spec-interceptor])
@@ -91,6 +92,21 @@
                (map (fn [mode]
                       (assoc-in mode [:selected] (= (:mode mode) mode-key)))
                     modes)))))
+
+(re-frame/reg-event-db
+ :input/set-value
+ global-interceptors
+ (fn [db [_ input-key value & address]]
+   (pprint "got here")
+   (let [input-data (get-in db [::db/input input-key :input-data])
+         debug0     (pprint "input data, value, address")
+         json       (js/JSON.parse input-data)
+         data       (js->clj json :keywordize-keys true)
+         new-data   (assoc-in data address value)
+         new-json   (js/JSON.stringify (clj->js new-data))
+         debug1     (pprint [data new-data new-json])]
+     (assoc-in db [::db/input input-key :input-data]
+               new-json))))
 
 (re-frame/reg-event-db
  :focus/set

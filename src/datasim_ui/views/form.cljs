@@ -155,18 +155,48 @@
    "No Editor For This Mode"])
 
 (defmethod edit-form [:input/parameters :advanced] [key mode]
-  [textarea key])
+  [:div
+   [textarea key]])
 
 (defmethod edit-form [:input/personae :advanced] [key mode]
-  [textarea key])
+  [:div
+   [textarea key]])
 
 (defmethod edit-form [:input/alignments :advanced] [key mode]
-  [textarea key])
+  [:div
+   [textarea key]])
 
 (defmethod edit-form [:input/profiles :advanced] [key mode]
-  (let [thing @(subscribe [:input/get-data :input/alignments])]
-    [textarea key]))
+  [:div
+   [textarea key]])
 
 (defmethod edit-form [:input/parameters :basic] [key mode]
   [:p
-   "and now we build it here"])
+   [textfield/textfield
+    :id        "input.parameters.start"
+    :label     "Start Time"
+    :value     @(subscribe [:input/get-value :input/parameters :start])
+    :on-change (fn [e]
+                 (fns/ps-event e)
+                 (dispatch [:input/set-value key (.. e -target -value) :start]))]
+   [textfield/textfield
+    :id        "input.parameters.end"
+    :label     "End Time"
+    :value     @(subscribe [:input/get-value :input/parameters :end])
+    :on-change (fn [e]
+                 (fns/ps-event e)
+                 (dispatch [:input/set-value key (.. e -target -value) :end]))]
+   [textfield/textfield
+    :id        "input.parameters.timezone"
+    :label     "Timezone"
+    :value     @(subscribe [:input/get-value :input/parameters :timezone])
+    :on-change (fn [e]
+                 (fns/ps-event e)
+                 (dispatch [:input/set-value key (.. e -target -value) :timezone]))]
+   [textfield/textfield
+    :id        "input.parameters.seed"
+    :label     "Simulation Seed"
+    :value     @(subscribe [:input/get-value :input/parameters :seed])
+    :on-change (fn [e]
+                 (fns/ps-event e)
+                 (dispatch [:input/set-value key (.. e -target -value) :seed]))]])

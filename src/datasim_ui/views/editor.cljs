@@ -81,7 +81,12 @@
                          (:selected mode) (str " mdc-tab--active"))
                 :role "tab"
                 :aria-selected (:selected mode)
-                :tabindex "0"}
+                :tabindex "0"
+                :on-click (fn [e]
+                            (fns/ps-event e)
+                            (dispatch [:input/set-selected-mode
+                                       key
+                                       (:mode mode)]))}
                [:span.mdc-tab__content
                 (if (:icon mode)
                   [:span.mdc-tab__icon.material-icons
