@@ -100,7 +100,7 @@
    (try
      (let [input-json (get-in db [::db/input input-key :input-data])
            data       (or (js->clj (js/JSON.parse input-json)
-                                   :keyworsize-keys true)
+                                   :keywordize-keys true)
                           {})
            new-data   (assoc-in data address value)
            new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
@@ -110,6 +110,66 @@
        (do
          (pprint ["Parse Problem!" e])
          db)))))
+
+(re-frame/reg-event-db
+ :input/add-element
+ global-interceptors
+ (fn [db [_ input-key value & address]]
+   (try
+     (let [input-json (get-in db [::db/input input-key :input-data])
+           data       (or (js->clj (js/JSON.parse input-json)
+                                   :keywordize-keys true)
+                          {})
+           new-data   (assoc-in data address
+                                (conj (get-in data address) value))
+           new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
+       (assoc-in db [::db/input input-key :input-data]
+                 new-json))
+     (catch js/Error. e
+       (do
+         (pprint ["Parse Problem!" e])
+         db)))))
+
+(re-frame/reg-event-db
+ :input/remove-element
+ global-interceptors
+ (fn [db [_ input-key index & address]]
+   (try
+     (let [input-json (get-in db [::db/input input-key :input-data])
+           data       (or (js->clj (js/JSON.parse input-json)
+                                   :keywordize-keys true)
+                          {})
+           coll       (get-in data address)
+           new-data   (assoc-in data address
+                                (vec (concat (subvec coll 0 index)
+                                             (subvec coll (inc index)))))
+           new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
+       (assoc-in db [::db/input input-key :input-data]
+                 new-json))
+     (catch js/Error. e
+       (do
+         (pprint ["Parse Problem!" e])
+         db)))))
+
+
+(comment
+  (def thing2 [:a :b :c :d :e :f :g :h])
+
+  (defn vec-remove
+    [coll pos]
+    (vec (concat (subvec coll 0 pos) (subvec coll (inc pos)))))
+
+  (def thing {:name "trainees"
+              :objectType "Group"
+              :member [
+                       {:name "Bob Fakename" :mbox "mailto:bob@example.org"}
+                       {:name "Alice Faux" :mbox "mailto:alice@example.org"}
+                       {:name "Fred Ersatz" :mbox "mailto:fred@example.org"}]})
+  (assoc-in thing [:member] (conj (get-in thing [:member]) {}))
+  (assoc-in thing [:member 0 :name] "Billy Boy")
+
+
+  )
 
 (re-frame/reg-event-db
  :focus/set

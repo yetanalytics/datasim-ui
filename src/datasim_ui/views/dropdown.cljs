@@ -20,16 +20,15 @@
                    id]
             :or {full-width? true
                  id          (str "mdc-text-field-" (random-uuid))}}]
-      (pprint options)
       [:div.mdc-select
        [:select.mdc-select__native-control
         {:name name
          :id id
-         :on-change on-change}
+         :on-change on-change
+         :value value}
         (for [option options]
           [:option
-           {:value (:value option)
-            :selected (= value (:value option))}
+           {:value (:value option)}
            (:display option)])]
        [:label.mdc-floating-label
         label]

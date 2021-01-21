@@ -203,45 +203,57 @@
                  (dispatch [:input/set-value key (.. e -target -value) :seed]))]])
 
 (defmethod edit-form [:input/personae :basic] [key mode]
-  [:span
-   [textfield/textfield
-    :id        "input.personae.name"
-    :label     "Name"
-    :value     @(subscribe [:input/get-value key :name])
-    :on-change (fn [e]
-                 (fns/ps-event e)
-                 (dispatch [:input/set-value key (.. e -target -value) :name]))]
-   [dropdown/dropdown
-    :id        "input.personae.typedrop"
-    :label     "Type"
-    :value     @(subscribe [:input/get-value key :objectType])
-    :options   [{:value "Group"
-                 :display "Group"}
-                {:value "Agent"
-                 :display "Agent"}]
-    :on-change (fn [e]
-                 (pprint "whaaaat")
-                 (fns/ps-event e)
-                 (dispatch [:input/set-value key (.. e -target -value)
-                            :objectType]))]
-   [:h3
-    "Members"]
-   [:div.cardlist-container
-    (for [member-index (range (count @(subscribe [:input/get-value key :member])))]
-      [:div.mdc-card.mdc-card--outlined
-       [textfield/textfield
-        :id        (str "input.personae.member." member-index ".name")
-        :label     "Member Name"
-        :value     @(subscribe [:input/get-value key :member member-index :name])
-        :on-change (fn [e]
-                     (fns/ps-event e)
-                     (dispatch [:input/set-value key (.. e -target -value)
-                                :member member-index :name]))]
-       [textfield/textfield
-        :id        (str "input.personae.member." member-index ".mbox")
-        :label     "Member Name"
-        :value     @(subscribe [:input/get-value key :member member-index :mbox])
-        :on-change (fn [e]
-                     (fns/ps-event e)
-                     (dispatch [:input/set-value key (.. e -target -value)
-                                :member member-index :mbox]))]])]])
+  (if @(subscribe [:input/get-valid key])
+    [:span
+     [textfield/textfield
+      :id        "input.personae.name"
+      :label     "Name"
+      :value     @(subscribe [:input/get-value key :name])
+      :on-change (fn [e]
+                   (fns/ps-event e)
+                   (dispatch [:input/set-value key (.. e -target -value) :name]))]
+     [dropdown/dropdown
+      :id        "input.personae.typedrop"
+      :label     "Type"
+      :value     @(subscribe [:input/get-value key :objectType])
+      :options   [{:value "Group"
+                   :display "Group"}
+                  {:value "Agent"
+                   :display "Agent"}]
+      :on-change (fn [e]
+                   (fns/ps-event e)
+                   (dispatch [:input/set-value key (.. e -target -value)
+                              :objectType]))]
+     [:h3
+      "Members"]
+     [:div.cardlist-container
+      (for [member-index (range (count @(subscribe [:input/get-value key :member])))]
+        [:div.mdc-card.mdc-card--outlined
+         [textfield/textfield
+          :id        (str "input.personae.member." member-index ".name")
+          :label     "Member Name"
+          :value     @(subscribe [:input/get-value key :member member-index :name])
+          :on-change (fn [e]
+                       (fns/ps-event e)
+                       (dispatch [:input/set-value key (.. e -target -value)
+                                  :member member-index :name]))]
+         [textfield/textfield
+          :id        (str "input.personae.member." member-index ".mbox")
+          :label     "Member Name"
+          :value     @(subscribe [:input/get-value key :member member-index :mbox])
+          :on-change (fn [e]
+                       (fns/ps-event e)
+                       (dispatch [:input/set-value key (.. e -target -value)
+                                  :member member-index :mbox]))]
+         [:button
+          {:on-click (fn [e]
+                       (fns/ps-event e)
+                       (dispatch [:input/remove-element key member-index :member]))}
+          "-"]])
+      [:button
+       {:on-click (fn [e]
+                    (fns/ps-event e)
+                    (dispatch [:input/add-element key {} :member]))}
+       "+"]]]
+    [:p
+     "The JSON in the Advanced Tab is not valid and must be fixed or removed to continue with Basic mode."]))

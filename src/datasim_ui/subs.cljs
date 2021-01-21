@@ -29,6 +29,19 @@
          nil)))))
 
 (reg-sub
+ :input/get-valid
+ (fn [[_ input-key]]
+   (subscribe [:input/get-data input-key]))
+ (fn [input-data [_ _]]
+   (try
+     (let [parsed (js->clj (js/JSON.parse input-data)
+                           :keywordize-keys true)]
+       true)
+     (catch js/Error. e
+       (do
+         false)))))
+
+(reg-sub
  :input/get-value
  (fn [[_ input-key]]
    (subscribe [:input/get-parsed-data input-key]))
