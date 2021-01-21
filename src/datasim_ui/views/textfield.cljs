@@ -1,6 +1,7 @@
 (ns datasim-ui.views.textfield
   (:require [reagent.core          :as r]
-            ["@material/textfield" :refer [MDCTextField]]))
+            ["@material/textfield" :refer [MDCTextField]]
+            [clojure.pprint :refer [pprint]]))
 
 (defn textfield
   [_]

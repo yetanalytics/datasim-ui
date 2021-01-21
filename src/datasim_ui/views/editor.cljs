@@ -81,7 +81,8 @@
                          (:selected mode) (str " mdc-tab--active"))
                 :role "tab"
                 :aria-selected (:selected mode)
-                :tabindex "0"
+                :tabIndex "0"
+                :key (str (name key) "-" (name (:mode mode)) "-tab-button")
                 :on-click (fn [e]
                             (fns/ps-event e)
                             (dispatch [:input/set-selected-mode

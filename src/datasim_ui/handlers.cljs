@@ -103,7 +103,7 @@
                                    :keyworsize-keys true)
                           {})
            new-data   (assoc-in data address value)
-           new-json   (js/JSON.stringify (clj->js new-data))]
+           new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
        (assoc-in db [::db/input input-key :input-data]
                  new-json))
      (catch js/Error. e
