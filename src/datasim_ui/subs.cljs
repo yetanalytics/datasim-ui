@@ -66,6 +66,25 @@
                 nil)))
            (:member data)))))
 
+(reg-sub
+ :input/get-profile-iris
+ (fn [_ _]
+   (subscribe [:input/get-parsed-data :input/profiles]))
+ (fn [data _]
+   (if (= nil data)
+     []
+     (reduce (fn [iris input]
+               (concat
+                iris
+                (mapv (fn [pattern] (:id pattern))
+                      (:patterns input))
+                (mapv (fn [concept] (:id concept))
+                      (:concepts input))
+                (mapv (fn [template] (:id template))
+                      (:templates input))))
+             []
+             data))))
+
 
 (reg-sub
  :input/get-modes

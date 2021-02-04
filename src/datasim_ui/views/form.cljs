@@ -280,24 +280,71 @@
     [:div.edit-basic
      [:h5
       "Alignments"]
-     (let [options (into [{:value nil
-                           :display "Select an Actor"}]
-                         (mapv (fn [actor]
-                                 {:value actor
-                                  :display actor})
-                               @(subscribe [:input/get-actor-ifis {}])))]
+     (let [actor-options (into [{:value "" :display "Select Actor"}]
+                               (mapv (fn [actor]
+                                       {:value actor
+                                        :display actor})
+                                     @(subscribe [:input/get-actor-ifis {}])))
+           profile-options (into [{:value "" :display "Select Component"}]
+                                 (mapv (fn [comp]
+                                         {:value comp
+                                          :display comp})
+                                       @(subscribe [:input/get-profile-iris {}])))]
        [:div.cardlist-container
         (for [a-index (range (count @(subscribe [:input/get-parsed-data key])))]
           [:div.mdc-card.mdc-card--outlined
+           {:key (str "alignment-card-" a-index)}
            [dropdown/dropdown
-            :id        (str "input.alignment." a-index ".actor")
+            :id        (str "input.alignments." a-index ".id")
             :label     "Actor"
             :value     @(subscribe [:input/get-value key a-index :id])
-            :options   options
+            :options   actor-options
             :on-change (fn [e]
                          (fns/ps-event e)
                          (dispatch [:input/set-value key (.. e -target -value)
                                     a-index :id]))]
+           [:div.cardlist-container
+            (for [c-index (range (count @(subscribe [:input/get-value key a-index
+                                                     :alignments])))]
+              [:div.mdc-card.mdc-card--outlined
+               {:key (str "alignment-" a-index "-component-" c-index)}
+               [dropdown/dropdown
+                :id        (str "input.alignments."a-index".alignments." c-index
+                                ".component")
+                :label     "Component"
+                :value     @(subscribe [:input/get-value key a-index :alignments
+                                        c-index :component])
+                :options   profile-options
+                :on-change (fn [e]
+                             (fns/ps-event e)
+                             (dispatch [:input/set-value key (.. e -target -value)
+                                        a-index :alignments c-index :component]))]
+               [textfield/textfield
+                :id        (str "input.alignments."a-index".alignments." c-index
+                                ".weight")
+                :label     "Weight"
+                :value     @(subscribe [:input/get-value key a-index :alignments
+                                        c-index :weight])
+                :on-change (fn [e]
+                             (fns/ps-event e)
+                             (dispatch [:input/set-value key (.. e -target -value)
+                                        a-index :alignments c-index :weight]))]
+               [:span.element-button
+                [:span.mdc-tab__icon.material-icons.clickable
+                 {:on-click (fn [e]
+                              (fns/ps-event e)
+                              (dispatch [:input/remove-element key c-index
+                                         a-index :alignments]))}
+                 "remove_circle"]
+                "Remove Component"]])
+            [:span.element-button
+             [:span.mdc-tab__icon.material-icons.clickable
+              {:on-click (fn [e]
+                           (fns/ps-event e)
+                           (dispatch [:input/add-element key {}
+                                      a-index :alignments]))}
+              "add_box"]
+             "Add Component"]]
            [:span.element-button
             [:span.mdc-tab__icon.material-icons.clickable
              {:on-click (fn [e]
@@ -305,14 +352,6 @@
                           (dispatch [:input/remove-element key a-index]))}
              "remove_circle"]
             "Remove Alignment"]
-
-           (comment [:div.cardlist-container
-                     (for [a-index (range (count @subscribe [:input/get-parsed-data key]))]
-                       [:div.cardlist-container
-                        (for [a-index (range (count @subscribe [:input/get-parsed-data key]))]
-                          [:div.mdc-card.mdc-card--outlined
-                           "an alignment"])])])
-
            ])
         [:span.element-button
          [:span.mdc-tab__icon.material-icons.clickable
