@@ -147,6 +147,14 @@
           (str (:error/text error))]])]]]])
 
 
+(defn if-valid
+  [key form]
+  (if @(subscribe [:input/get-valid key])
+    form
+    [:p
+     "The JSON for this input is not valid and must be fixed or removed before using this edit mode."])
+  )
+
 (defmulti edit-form (fn [key mode]
                       [key (:mode mode)]))
 
@@ -157,22 +165,26 @@
 
 (defmethod edit-form [:input/parameters :advanced] [key mode]
   [:div
-   [textarea key]])
+   [:div.advanced
+    [textarea key]]])
 
 (defmethod edit-form [:input/personae :advanced] [key mode]
   [:div
-   [textarea key]])
+   [:div.advanced
+    [textarea key]]])
 
 (defmethod edit-form [:input/alignments :advanced] [key mode]
   [:div
-   [textarea key]])
+   [:div.advanced
+    [textarea key]]])
 
 (defmethod edit-form [:input/profiles :advanced] [key mode]
   [:div
-   [textarea key]])
+   [:div.advanced
+    [textarea key]]])
 
 (defmethod edit-form [:input/parameters :basic] [key mode]
-  [:span
+  [:div.edit-basic
    [textfield/textfield
     :id        "input.parameters.start"
     :label     "Start Time"
@@ -203,8 +215,9 @@
                  (dispatch [:input/set-value key (.. e -target -value) :seed]))]])
 
 (defmethod edit-form [:input/personae :basic] [key mode]
-  (if @(subscribe [:input/get-valid key])
-    [:span
+  (if-valid
+      key
+    [:div.edit-basic
      [textfield/textfield
       :id        "input.personae.name"
       :label     "Name"
@@ -224,7 +237,7 @@
                    (fns/ps-event e)
                    (dispatch [:input/set-value key (.. e -target -value)
                               :objectType]))]
-     [:h3
+     [:h5
       "Members"]
      [:div.cardlist-container
       (for [member-index (range (count @(subscribe [:input/get-value key :member])))]
@@ -239,21 +252,72 @@
                                   :member member-index :name]))]
          [textfield/textfield
           :id        (str "input.personae.member." member-index ".mbox")
-          :label     "Member Name"
+          :label     "Member Mbox"
           :value     @(subscribe [:input/get-value key :member member-index :mbox])
           :on-change (fn [e]
                        (fns/ps-event e)
                        (dispatch [:input/set-value key (.. e -target -value)
                                   :member member-index :mbox]))]
-         [:button
+         [:span.element-button
+          [:span.mdc-tab__icon.material-icons.clickable
+           {:on-click (fn [e]
+                        (fns/ps-event e)
+                        (dispatch [:input/remove-element key member-index :member]))}
+           "remove_circle"]
+          "Remove Member"]])
+      [:span.element-button
+       [:span.mdc-tab__icon.material-icons.clickable
+        {:on-click (fn [e]
+                     (fns/ps-event e)
+                     (dispatch [:input/add-element key {} :member]))}
+        "add_box"]
+       "Add Member"]]]))
+
+
+(defmethod edit-form [:input/alignments :basic] [key mode]
+  (if-valid
+      key
+    [:div.edit-basic
+     [:h5
+      "Alignments"]
+     (let [options (into [{:value nil
+                           :display "Select an Actor"}]
+                         (mapv (fn [actor]
+                                 {:value actor
+                                  :display actor})
+                               @(subscribe [:input/get-actor-ifis {}])))]
+       [:div.cardlist-container
+        (for [a-index (range (count @(subscribe [:input/get-parsed-data key])))]
+          [:div.mdc-card.mdc-card--outlined
+           [dropdown/dropdown
+            :id        (str "input.alignment." a-index ".actor")
+            :label     "Actor"
+            :value     @(subscribe [:input/get-value key a-index :id])
+            :options   options
+            :on-change (fn [e]
+                         (fns/ps-event e)
+                         (dispatch [:input/set-value key (.. e -target -value)
+                                    a-index :id]))]
+           [:span.element-button
+            [:span.mdc-tab__icon.material-icons.clickable
+             {:on-click (fn [e]
+                          (fns/ps-event e)
+                          (dispatch [:input/remove-element key a-index]))}
+             "remove_circle"]
+            "Remove Alignment"]
+
+           (comment [:div.cardlist-container
+                     (for [a-index (range (count @subscribe [:input/get-parsed-data key]))]
+                       [:div.cardlist-container
+                        (for [a-index (range (count @subscribe [:input/get-parsed-data key]))]
+                          [:div.mdc-card.mdc-card--outlined
+                           "an alignment"])])])
+
+           ])
+        [:span.element-button
+         [:span.mdc-tab__icon.material-icons.clickable
           {:on-click (fn [e]
                        (fns/ps-event e)
-                       (dispatch [:input/remove-element key member-index :member]))}
-          "-"]])
-      [:button
-       {:on-click (fn [e]
-                    (fns/ps-event e)
-                    (dispatch [:input/add-element key {} :member]))}
-       "+"]]]
-    [:p
-     "The JSON in the Advanced Tab is not valid and must be fixed or removed to continue with Basic mode."]))
+                       (dispatch [:input/add-element key {}]))}
+          "add_box"]
+         "Add Alignment"]])]))

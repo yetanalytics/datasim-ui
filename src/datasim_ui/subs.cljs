@@ -49,6 +49,25 @@
    (get-in data address)))
 
 (reg-sub
+ :input/get-actor-ifis
+ (fn [_ _]
+   (subscribe [:input/get-parsed-data :input/personae]))
+ (fn [data _]
+   (if (= nil data)
+     []
+     (mapv (fn [member]
+             (or
+              (:mbox member)
+              (:mbox_sha1 member)
+              (:openid member)
+              (if (:account member)
+                (str (get-in member [:account :name]) " / "
+                     (get-in member [:account :homePage]))
+                nil)))
+           (:member data)))))
+
+
+(reg-sub
  :input/get-modes
  (fn [_ _]
    (subscribe [:db/input]))

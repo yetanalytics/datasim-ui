@@ -37,7 +37,8 @@
                               {:mode     :advanced
                                :display  "Advanced"
                                :icon     "code"
-                               :selected true}]}
+                               :selected true}]
+                :input-data  "[]"}
                :input/personae
                {:input-modes [{:mode     :basic
                                :display  "Basic"
@@ -120,8 +121,10 @@
            data       (or (js->clj (js/JSON.parse input-json)
                                    :keywordize-keys true)
                           {})
-           new-data   (assoc-in data address
-                                (conj (get-in data address) value))
+           new-data    (if (= nil address)
+                         (conj data value)
+                         (assoc-in data address
+                                   (conj (get-in data address) value)))
            new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
        (assoc-in db [::db/input input-key :input-data]
                  new-json))
@@ -139,10 +142,13 @@
            data       (or (js->clj (js/JSON.parse input-json)
                                    :keywordize-keys true)
                           {})
-           coll       (get-in data address)
-           new-data   (assoc-in data address
-                                (vec (concat (subvec coll 0 index)
-                                             (subvec coll (inc index)))))
+           new-data   (if (= nil address)
+                        (vec (concat (subvec data 0 index)
+                                     (subvec data (inc index))))
+                        (let [coll (get-in data address)]
+                          (assoc-in data address
+                                    (vec (concat (subvec coll 0 index)
+                                                 (subvec coll (inc index)))))))
            new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
        (assoc-in db [::db/input input-key :input-data]
                  new-json))
@@ -150,26 +156,6 @@
        (do
          (pprint ["Parse Problem!" e])
          db)))))
-
-
-(comment
-  (def thing2 [:a :b :c :d :e :f :g :h])
-
-  (defn vec-remove
-    [coll pos]
-    (vec (concat (subvec coll 0 pos) (subvec coll (inc pos)))))
-
-  (def thing {:name "trainees"
-              :objectType "Group"
-              :member [
-                       {:name "Bob Fakename" :mbox "mailto:bob@example.org"}
-                       {:name "Alice Faux" :mbox "mailto:alice@example.org"}
-                       {:name "Fred Ersatz" :mbox "mailto:fred@example.org"}]})
-  (assoc-in thing [:member] (conj (get-in thing [:member]) {}))
-  (assoc-in thing [:member 0 :name] "Billy Boy")
-
-
-  )
 
 (re-frame/reg-event-db
  :focus/set
