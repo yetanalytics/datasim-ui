@@ -368,33 +368,15 @@
                          (fns/ps-event e)
                          (dispatch [:input/set-value key (.. e -target -value)
                                     a-index :type]))]
-           (case @(subscribe [:input/get-value key a-index :type])
-             "Agent"
+           (let [alignment-type @(subscribe [:input/get-value key a-index :type])]
              [dropdown/dropdown
               :id        (str "input.alignments." a-index ".id")
-              :label     "Agent"
+              :label     alignment-type
               :value     @(subscribe [:input/get-value key a-index :id])
-              :options   agent-options
-              :on-change (fn [e]
-                           (fns/ps-event e)
-                           (dispatch [:input/set-value key (.. e -target -value)
-                                      a-index :id]))]
-             "Group"
-             [dropdown/dropdown
-              :id        (str "input.alignments." a-index ".id")
-              :label     "Group"
-              :value     @(subscribe [:input/get-value key a-index :id])
-              :options   group-options
-              :on-change (fn [e]
-                           (fns/ps-event e)
-                           (dispatch [:input/set-value key (.. e -target -value)
-                                      a-index :id]))]
-             "Role"
-             [dropdown/dropdown
-              :id        (str "input.alignments." a-index ".id")
-              :label     "Role"
-              :value     @(subscribe [:input/get-value key a-index :id])
-              :options   role-options
+              :options   (case alignment-type
+                           "Agent" agent-options
+                           "Group" group-options
+                           "Role"  role-options)
               :on-change (fn [e]
                            (fns/ps-event e)
                            (dispatch [:input/set-value key (.. e -target -value)
