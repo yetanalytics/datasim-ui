@@ -15,7 +15,7 @@
             [cljsjs.codemirror.addon.lint.json-lint]
             [cljsjs.codemirror.addon.edit.matchbrackets]
             [cljsjs.codemirror.addon.edit.closebrackets]
-            (clojure.pprint              :refer [pprint])))
+            [clojure.pprint              :refer [pprint]]))
 
 (defn form
   [body]
@@ -31,10 +31,10 @@
                        xhr       (js/XMLHttpRequest.)
                        username  @(subscribe [:options/username])
                        password  @(subscribe [:options/password])]
-                   (.append form-data "profiles" (:input-data @(subscribe [:input/profiles])))
-                   (.append form-data "personae" (:input-data @(subscribe [:input/personae])))
-                   (.append form-data "alignments" (:input-data @(subscribe [:input/alignments])))
-                   (.append form-data "parameters" (:input-data @(subscribe [:input/parameters])))
+                   (.append form-data "profiles" @(subscribe [:input/get-data :input/profiles]))
+                   (.append form-data "personae" @(subscribe [:input/get-data :input/personae]))
+                   (.append form-data "alignments" @(subscribe [:input/get-data :input/alignments]))
+                   (.append form-data "parameters" @(subscribe [:input/get-data :input/parameters]))
                    (.append form-data "lrs-endpoint" @(subscribe [:options/endpoint]))
                    (.append form-data "api-key" @(subscribe [:options/api-key]))
                    (.append form-data "api-secret-key" @(subscribe [:options/api-secret-key]))
@@ -87,7 +87,7 @@
     :gutters           ["CodeMirror-link-markers"]
     :lint              true}
    {:name   (util/input-name key)
-    :value  (:input-data @(subscribe [key]))
+    :value  @(subscribe [:input/get-data key])
     :events {"change" (fn [this [cm obj]]
                         (dispatch [:input/set-data key (.getValue cm)]))}}])
 
@@ -230,9 +230,7 @@
       :label     "Type"
       :value     @(subscribe [:input/get-value key :objectType])
       :options   [{:value "Group"
-                   :display "Group"}
-                  {:value "Agent"
-                   :display "Agent"}]
+                   :display "Group"}]
       :on-change (fn [e]
                    (fns/ps-event e)
                    (dispatch [:input/set-value key (.. e -target -value)
@@ -241,35 +239,87 @@
       "Members"]
      [:div.cardlist-container
       (for [member-index (range (count @(subscribe [:input/get-value key :member])))]
-        [:div.mdc-card.mdc-card--outlined
-         [textfield/textfield
-          :id        (str "input.personae.member." member-index ".name")
-          :label     "Member Name"
-          :value     @(subscribe [:input/get-value key :member member-index :name])
-          :on-change (fn [e]
-                       (fns/ps-event e)
-                       (dispatch [:input/set-value key (.. e -target -value)
-                                  :member member-index :name]))]
-         [textfield/textfield
-          :id        (str "input.personae.member." member-index ".mbox")
-          :label     "Member Mbox"
-          :value     @(subscribe [:input/get-value key :member member-index :mbox])
-          :on-change (fn [e]
-                       (fns/ps-event e)
-                       (dispatch [:input/set-value key (.. e -target -value)
-                                  :member member-index :mbox]))]
-         [:span.element-button
-          [:span.mdc-tab__icon.material-icons.clickable
-           {:on-click (fn [e]
-                        (fns/ps-event e)
-                        (dispatch [:input/remove-element key member-index :member]))}
-           "remove_circle"]
-          "Remove Member"]])
+        (let [[ifi-key ifi-value] @(subscribe [:input/get-ifi key :member member-index])]
+          [:div.mdc-card.mdc-card--outlined
+           {:key (str "personae-member-" member-index)}
+           [textfield/textfield
+            :id        (str "input.personae.member." member-index ".name")
+            :label     "Member Name"
+            :value     @(subscribe [:input/get-value key :member member-index :name])
+            :on-change (fn [e]
+                         (fns/ps-event e)
+                         (dispatch [:input/set-value key (.. e -target -value)
+                                    :member member-index :name]))]
+           [textfield/textfield
+            :id        (str "input.personae.member." member-index ".role")
+            :label     "Role (optional)"
+            :value     @(subscribe [:input/get-value key :member member-index :role])
+            :on-change (fn [e]
+                         (fns/ps-event e)
+                         (dispatch [:input/set-value key (.. e -target -value)
+                                    :member member-index :role]))]
+           [dropdown/dropdown
+            :id        "input.personae.member." member-index ".ifi.key"
+            :label     "Identifier Type"
+            :value     (name ifi-key)
+            :options   [{:value "mbox"
+                         :display "MBox"}
+                        {:value "mbox_sha1sum"
+                         :display "MBox Checksum"}
+                        {:value "openid"
+                         :display "OpenID"}
+                        {:value "account"
+                         :display "Account"}]
+            :on-change (fn [e]
+                         (fns/ps-event e)
+                         (let [val (keyword (.. e -target -value))]
+                           (dispatch [:input/set-ifi key [val
+                                                          (if (not= val ifi-key)
+                                                            (if (= val :account)
+                                                              {}
+                                                              "")
+                                                            ifi-value)]
+                                      :member member-index])))]
+           (if (= ifi-key :account)
+             [:div
+              [textfield/textfield
+               :id        (str "input.personae.member." member-index ".ifi.account.homePage")
+               :label     "Account Homepage"
+               :value     (:homePage ifi-value)
+               :on-change (fn [e]
+                            (fns/ps-event e)
+                            (dispatch [:input/set-ifi key [ifi-key {:homePage (.. e -target -value)
+                                                                    :name (:name ifi-value)}]
+                                       :member member-index]))]
+              [textfield/textfield
+               :id        (str "input.personae.member." member-index ".ifi.account.name")
+               :label     "Account Name"
+               :value     (:name ifi-value)
+               :on-change (fn [e]
+                            (fns/ps-event e)
+                            (dispatch [:input/set-ifi key [ifi-key {:homePage (:homePage ifi-value)
+                                                                    :name (.. e -target -value)}]
+                                       :member member-index]))]]
+             [textfield/textfield
+              :id        (str "input.personae.member." member-index ".ifi.value")
+              :label     (name ifi-key)
+              :value     ifi-value
+              :on-change (fn [e]
+                           (fns/ps-event e)
+                           (dispatch [:input/set-ifi key [ifi-key (.. e -target -value)]
+                                      :member member-index]))])
+           [:span.element-button
+            [:span.mdc-tab__icon.material-icons.clickable
+             {:on-click (fn [e]
+                          (fns/ps-event e)
+                          (dispatch [:input/remove-element key member-index :member]))}
+             "remove_circle"]
+            "Remove Member"]]))
       [:span.element-button
        [:span.mdc-tab__icon.material-icons.clickable
         {:on-click (fn [e]
                      (fns/ps-event e)
-                     (dispatch [:input/add-element key {} :member]))}
+                     (dispatch [:input/add-element key {:mbox ""} :member]))}
         "add_box"]
        "Add Member"]]]))
 
@@ -280,11 +330,21 @@
     [:div.edit-basic
      [:h5
       "Alignments"]
-     (let [actor-options (into [{:value "" :display "Select Actor"}]
+     (let [agent-options (into [{:value "" :display "Select Actor"}]
                                (mapv (fn [actor]
                                        {:value actor
                                         :display actor})
                                      @(subscribe [:input/get-actor-ifis {}])))
+           group-options (into [{:value "" :display "Select Group"}]
+                               (mapv (fn [actor]
+                                       {:value actor
+                                        :display actor})
+                                     @(subscribe [:input/get-actor-groups {}])))
+           role-options (into [{:value "" :display "Select Role"}]
+                               (mapv (fn [actor]
+                                       {:value actor
+                                        :display actor})
+                                     @(subscribe [:input/get-actor-roles {}])))
            profile-options (into [{:value "" :display "Select Component"}]
                                  (mapv (fn [comp]
                                          {:value comp
@@ -296,13 +356,49 @@
            {:key (str "alignment-card-" a-index)}
            [dropdown/dropdown
             :id        (str "input.alignments." a-index ".id")
-            :label     "Actor"
-            :value     @(subscribe [:input/get-value key a-index :id])
-            :options   actor-options
+            :label     "Alignment Type"
+            :value     @(subscribe [:input/get-value key a-index :type])
+            :options   (cond-> [{:value "Agent"
+                                 :display "Agent"}
+                                {:value "Group"
+                                 :display "Group"}
+                                {:value "Role"
+                                 :display "Role"}])
             :on-change (fn [e]
                          (fns/ps-event e)
                          (dispatch [:input/set-value key (.. e -target -value)
-                                    a-index :id]))]
+                                    a-index :type]))]
+           (case @(subscribe [:input/get-value key a-index :type])
+             "Agent"
+             [dropdown/dropdown
+              :id        (str "input.alignments." a-index ".id")
+              :label     "Agent"
+              :value     @(subscribe [:input/get-value key a-index :id])
+              :options   agent-options
+              :on-change (fn [e]
+                           (fns/ps-event e)
+                           (dispatch [:input/set-value key (.. e -target -value)
+                                      a-index :id]))]
+             "Group"
+             [dropdown/dropdown
+              :id        (str "input.alignments." a-index ".id")
+              :label     "Group"
+              :value     @(subscribe [:input/get-value key a-index :id])
+              :options   group-options
+              :on-change (fn [e]
+                           (fns/ps-event e)
+                           (dispatch [:input/set-value key (.. e -target -value)
+                                      a-index :id]))]
+             "Role"
+             [dropdown/dropdown
+              :id        (str "input.alignments." a-index ".id")
+              :label     "Role"
+              :value     @(subscribe [:input/get-value key a-index :id])
+              :options   role-options
+              :on-change (fn [e]
+                           (fns/ps-event e)
+                           (dispatch [:input/set-value key (.. e -target -value)
+                                      a-index :id]))])
            [:div.cardlist-container
             (for [c-index (range (count @(subscribe [:input/get-value key a-index
                                                      :alignments])))]
@@ -319,15 +415,18 @@
                              (fns/ps-event e)
                              (dispatch [:input/set-value key (.. e -target -value)
                                         a-index :alignments c-index :component]))]
-               [textfield/textfield
+               [textfield/numeric
                 :id        (str "input.alignments."a-index".alignments." c-index
                                 ".weight")
                 :label     "Weight"
+                :step      "0.01"
+                :max       "1.00"
+                :min       "-1.00"
                 :value     @(subscribe [:input/get-value key a-index :alignments
                                         c-index :weight])
                 :on-change (fn [e]
                              (fns/ps-event e)
-                             (dispatch [:input/set-value key (.. e -target -value)
+                             (dispatch [:input/set-value key (js/parseFloat (.. e -target -value))
                                         a-index :alignments c-index :weight]))]
                [:span.element-button
                 [:span.mdc-tab__icon.material-icons.clickable
@@ -357,6 +456,6 @@
          [:span.mdc-tab__icon.material-icons.clickable
           {:on-click (fn [e]
                        (fns/ps-event e)
-                       (dispatch [:input/add-element key {}]))}
+                       (dispatch [:input/add-element key {:type "Agent"}]))}
           "add_box"]
          "Add Alignment"]])]))

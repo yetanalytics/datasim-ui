@@ -28,7 +28,8 @@
          :value value}
         (for [option options]
           [:option
-           {:value (:value option)}
+           {:value (:value option)
+            :key (str name "-" (:value option))}
            (:display option)])]
        [:label.mdc-floating-label
         label]

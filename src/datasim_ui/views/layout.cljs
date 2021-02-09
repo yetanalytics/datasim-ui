@@ -4,7 +4,8 @@
             [datasim-ui.views.form     :as form]
             [datasim-ui.views.editor   :as editor]
             [datasim-ui.views.dialog   :as dialog]
-            [datasim-ui.views.snackbar :refer [snackbar]]))
+            [datasim-ui.views.snackbar :refer [snackbar]]
+            [datasim-ui.util           :as util]))
 
 (defn content
   []
@@ -27,16 +28,16 @@
             [:button.minorbutton
              {:on-click (fn [e]
                           (fns/export-file e
-                                           (let [profiles   (js/JSON.parse (:input-data @(subscribe [:input/profiles])))
-                                                 personae   (js/JSON.parse (:input-data @(subscribe [:input/personae])))
-                                                 alignments (js/JSON.parse (:input-data @(subscribe [:input/alignments])))
-                                                 parameters (js/JSON.parse (:input-data @(subscribe [:input/parameters])))
+                                           (let [profiles   (js/JSON.parse @(subscribe [:input/get-data :input/profiles]))
+                                                 personae   (js/JSON.parse @(subscribe [:input/get-data :input/personae]))
+                                                 alignments (js/JSON.parse @(subscribe [:input/get-data :input/alignments]))
+                                                 parameters (js/JSON.parse @(subscribe [:input/get-data :input/parameters]))
                                                  json       #js {"profiles"   profiles
                                                                  "personae"   personae
                                                                  "alignments" alignments
                                                                  "parameters" parameters}]
                                              (js/Blob. [(js/JSON.stringify json)]
-                                                       clj->js {:type "application/json"}))
+                                                       util/clj-to-json {:type "application/json"}))
                                            "input.json"))}
              "Export File"]
             [:div.spacer]

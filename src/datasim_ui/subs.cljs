@@ -1,7 +1,8 @@
 (ns datasim-ui.subs
-  (:require [re-frame.core :refer [reg-sub subscribe]]
-            [datasim-ui.db :as db]
-            [clojure.pprint :refer [pprint]]))
+  (:require [re-frame.core      :refer [reg-sub subscribe]]
+            [datasim-ui.db      :as db]
+            [clojure.pprint     :refer [pprint]]
+            [datasim-ui.util    :as util]))
 
 (reg-sub
  :db/input
@@ -19,9 +20,9 @@
  :input/get-parsed-data
  (fn [[_ input-key]]
    (subscribe [:input/get-data input-key]))
- (fn [input-data [_ _]]
+ (fn [input-data [_ input-key]]
    (try
-     (js->clj (js/JSON.parse input-data)
+     (util/json-to-clj (js/JSON.parse input-data)
               :keywordize-keys true)
      (catch js/Error. e
        (do
@@ -34,8 +35,8 @@
    (subscribe [:input/get-data input-key]))
  (fn [input-data [_ _]]
    (try
-     (let [parsed (js->clj (js/JSON.parse input-data)
-                           :keywordize-keys true)]
+     (let [parsed (util/json-to-clj (js/JSON.parse input-data)
+                                    :keywordize-keys true)]
        true)
      (catch js/Error. e
        (do
@@ -56,15 +57,40 @@
    (if (= nil data)
      []
      (mapv (fn [member]
-             (or
-              (:mbox member)
-              (:mbox_sha1 member)
-              (:openid member)
-              (if (:account member)
-                (str (get-in member [:account :name]) " / "
-                     (get-in member [:account :homePage]))
-                nil)))
+             (-> member
+                 (select-keys [:mbox :mbox_sha1sum :openid :account])
+                 first
+                 ((fn [[key value]]
+                    (str (name key)
+                         "::"
+                         (if (= key :account)
+                           (str (:homePage value) ","
+                                (:name value))
+                           value))))))
            (:member data)))))
+
+(reg-sub
+ :input/get-actor-roles
+ (fn [_ _]
+   (subscribe [:input/get-parsed-data :input/personae]))
+ (fn [data _]
+   (if (= nil data)
+     []
+     (reduce (fn [roles member]
+               (if (contains? member :role)
+                 (conj roles (:role member))
+                 roles))
+             []
+             (:member data)))))
+
+(reg-sub
+ :input/get-actor-groups
+ (fn [_ _]
+   (subscribe [:input/get-parsed-data :input/personae]))
+ (fn [data _]
+   (if (= nil data)
+     []
+     [(:name data)])))
 
 (reg-sub
  :input/get-profile-iris
@@ -76,15 +102,27 @@
      (reduce (fn [iris input]
                (concat
                 iris
+                ["---Patterns---"]
                 (mapv (fn [pattern] (:id pattern))
                       (:patterns input))
+                ["---Concepts---"]
                 (mapv (fn [concept] (:id concept))
                       (:concepts input))
+                ["---Templates---"]
                 (mapv (fn [template] (:id template))
                       (:templates input))))
              []
              data))))
 
+(reg-sub
+ :input/get-ifi
+ (fn [[_ input-key]]
+   (subscribe [:input/get-parsed-data input-key]))
+ (fn [data [_ input-key & address]]
+   (let [member (get-in data address)]
+     (-> member
+         (select-keys [:mbox :mbox_sha1sum :openid :account])
+         first))))
 
 (reg-sub
  :input/get-modes
@@ -102,34 +140,6 @@
      (first
       (filter (fn [mode]
                 (:selected mode)) modes)))))
-
-(reg-sub
- :input/profiles
- (fn [_ _]
-   (subscribe [:db/input]))
- (fn [input _]
-   (:input/profiles input)))
-
-(reg-sub
- :input/personae
- (fn [_ _]
-   (subscribe [:db/input]))
- (fn [input _]
-   (:input/personae input)))
-
-(reg-sub
- :input/alignments
- (fn [_ _]
-   (subscribe [:db/input]))
- (fn [input _]
-   (:input/alignments input)))
-
-(reg-sub
- :input/parameters
- (fn [_ _]
-   (subscribe [:db/input]))
- (fn [input _]
-   (:input/parameters input)))
 
 (reg-sub
  :db/focus

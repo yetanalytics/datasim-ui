@@ -2,7 +2,8 @@
   (:require [re-frame.core             :as re-frame]
             [datasim-ui.views.snackbar :refer [snackbar!]]
             [datasim-ui.db             :as db :refer [check-spec-interceptor]]
-            [clojure.pprint            :refer [pprint]]))
+            [clojure.pprint            :refer [pprint]]
+            [datasim-ui.util           :as util]))
 
 (def global-interceptors
   [check-spec-interceptor])
@@ -100,11 +101,32 @@
  (fn [db [_ input-key value & address]]
    (try
      (let [input-json (get-in db [::db/input input-key :input-data])
-           data       (or (js->clj (js/JSON.parse input-json)
-                                   :keywordize-keys true)
+           data       (or (util/json-to-clj (js/JSON.parse input-json)
+                                            :keywordize-keys true)
                           {})
            new-data   (assoc-in data address value)
-           new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
+           new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
+       (assoc-in db [::db/input input-key :input-data]
+                 new-json))
+     (catch js/Error. e
+       (do
+         (pprint ["Parse Problem!" e])
+         db)))))
+
+(re-frame/reg-event-db
+ :input/set-ifi
+ global-interceptors
+ (fn [db [_ input-key ifi & address]]
+   (try
+     (let [input-json (get-in db [::db/input input-key :input-data])
+           data       (or (util/json-to-clj (js/JSON.parse input-json)
+                                            :keywordize-keys true)
+                          {})
+           new-member (assoc (dissoc (get-in data address)
+                                     :mbox :mbox_sha1sum :openid :account)
+                             (first ifi) (second ifi))
+           new-data   (assoc-in data address new-member)
+           new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
        (assoc-in db [::db/input input-key :input-data]
                  new-json))
      (catch js/Error. e
@@ -118,14 +140,14 @@
  (fn [db [_ input-key value & address]]
    (try
      (let [input-json (get-in db [::db/input input-key :input-data])
-           data       (or (js->clj (js/JSON.parse input-json)
+           data       (or (util/json-to-clj (js/JSON.parse input-json)
                                    :keywordize-keys true)
                           {})
            new-data    (if (= nil address)
                          (conj data value)
                          (assoc-in data address
                                    (conj (get-in data address) value)))
-           new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
+           new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
        (assoc-in db [::db/input input-key :input-data]
                  new-json))
      (catch js/Error. e
@@ -139,7 +161,7 @@
  (fn [db [_ input-key index & address]]
    (try
      (let [input-json (get-in db [::db/input input-key :input-data])
-           data       (or (js->clj (js/JSON.parse input-json)
+           data       (or (util/json-to-clj (js/JSON.parse input-json)
                                    :keywordize-keys true)
                           {})
            new-data   (if (= nil address)
@@ -149,7 +171,7 @@
                           (assoc-in data address
                                     (vec (concat (subvec coll 0 index)
                                                  (subvec coll (inc index)))))))
-           new-json   (js/JSON.stringify (clj->js new-data) nil 2)]
+           new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
        (assoc-in db [::db/input input-key :input-data]
                  new-json))
      (catch js/Error. e
