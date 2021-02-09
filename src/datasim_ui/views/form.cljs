@@ -308,18 +308,18 @@
                            (fns/ps-event e)
                            (dispatch [:input/set-ifi key [ifi-key (.. e -target -value)]
                                       :member member-index]))])
-           [:span.element-button
-            [:span.mdc-tab__icon.material-icons.clickable
-             {:on-click (fn [e]
-                          (fns/ps-event e)
-                          (dispatch [:input/remove-element key member-index :member]))}
+           [:span.element-button.clickable
+            {:on-click (fn [e]
+                         (fns/ps-event e)
+                         (dispatch [:input/remove-element key member-index :member]))}
+            [:span.mdc-tab__icon.material-icons
              "remove_circle"]
             "Remove Member"]]))
-      [:span.element-button
-       [:span.mdc-tab__icon.material-icons.clickable
-        {:on-click (fn [e]
-                     (fns/ps-event e)
-                     (dispatch [:input/add-element key {:mbox ""} :member]))}
+      [:span.element-button.clickable
+       {:on-click (fn [e]
+                    (fns/ps-event e)
+                    (dispatch [:input/add-element key {:mbox ""} :member]))}
+       [:span.mdc-tab__icon.material-icons
         "add_box"]
        "Add Member"]]]))
 
@@ -410,34 +410,34 @@
                              (fns/ps-event e)
                              (dispatch [:input/set-value key (js/parseFloat (.. e -target -value))
                                         a-index :alignments c-index :weight]))]
-               [:span.element-button
-                [:span.mdc-tab__icon.material-icons.clickable
-                 {:on-click (fn [e]
-                              (fns/ps-event e)
-                              (dispatch [:input/remove-element key c-index
-                                         a-index :alignments]))}
+               [:span.element-button.clickable
+                {:on-click (fn [e]
+                             (fns/ps-event e)
+                             (dispatch [:input/remove-element key c-index
+                                        a-index :alignments]))}
+                [:span.mdc-tab__icon.material-icons
                  "remove_circle"]
                 "Remove Component"]])
-            [:span.element-button
-             [:span.mdc-tab__icon.material-icons.clickable
-              {:on-click (fn [e]
-                           (fns/ps-event e)
-                           (dispatch [:input/add-element key {}
-                                      a-index :alignments]))}
-              "add_box"]
-             "Add Component"]]
-           [:span.element-button
-            [:span.mdc-tab__icon.material-icons.clickable
+            [:span.element-button.clickable
              {:on-click (fn [e]
                           (fns/ps-event e)
-                          (dispatch [:input/remove-element key a-index]))}
+                          (dispatch [:input/add-element key {}
+                                     a-index :alignments]))}
+             [:span.mdc-tab__icon.material-icons
+              "add_box"]
+             "Add Component"]]
+           [:span.element-button.clickable
+            {:on-click (fn [e]
+                         (fns/ps-event e)
+                         (dispatch [:input/remove-element key a-index]))}
+            [:span.mdc-tab__icon.material-icons
              "remove_circle"]
             "Remove Alignment"]
            ])
-        [:span.element-button
-         [:span.mdc-tab__icon.material-icons.clickable
-          {:on-click (fn [e]
-                       (fns/ps-event e)
-                       (dispatch [:input/add-element key {:type "Agent"}]))}
+        [:span.element-button.clickable
+         {:on-click (fn [e]
+                      (fns/ps-event e)
+                      (dispatch [:input/add-element key {:type "Agent"}]))}
+         [:span.mdc-tab__icon.material-icons
           "add_box"]
          "Add Alignment"]])]))
