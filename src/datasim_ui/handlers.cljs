@@ -50,33 +50,13 @@
                                :icon     "code"
                                :selected true}]}
                :input/profiles
-               {:input-modes [{:mode     :advanced
-                               :display  "Profile"
-                               :icon     "code"
-                               :selected true}]}}))))
-
-(re-frame/reg-event-db
- :input/set-data
- global-interceptors
- (fn [db [_ input-key data]]
-   (if (= input-key :input/all)
-     (try
-       (let [json       (js/JSON.parse data)
-             profiles   (js/JSON.stringify (.. json -profiles))
-             personae   (js/JSON.stringify (.. json -personae))
-             alignments (js/JSON.stringify (.. json -alignments))
-             parameters (js/JSON.stringify (.. json -parameters))]
-         (-> db
-             (assoc-in [::db/input :input/profiles :input-data] profiles)
-             (assoc-in [::db/input :input/parameters :input-data] parameters)
-             (assoc-in [::db/input :input/alignments :input-data] alignments)
-             (assoc-in [::db/input :input/personae :input-data] personae)))
-       (catch js/Error. e
-         (do
-           (snackbar! "Error parsing JSON Input")
-           db)))
-     (assoc-in db [::db/input input-key :input-data]
-               data))))
+               {:input-modes [{:mode          :default
+                               :mode-category :profile-tabs
+                               :display       "Untitled Profile 1"
+                               :icon          "code"
+                               :selected      true
+                               :address       [0]}]
+                :input-data  "[{}]"}}))))
 
 (re-frame/reg-event-db
  :input/set-modes
@@ -95,10 +75,68 @@
                       (assoc-in mode [:selected] (= (:mode mode) mode-key)))
                     modes)))))
 
+(defn parse-profile-modes
+  [data modes]
+  (let [selected
+        (-> (filter (fn [mode] (:selected mode)) modes)
+            first)
+        modes
+        (vec
+         (map-indexed
+          (fn [idx profile]
+            (let [mode-key (keyword (str "profile-" idx))]
+              {:mode          mode-key
+               :mode-category :profile-tabs
+               :display       (if (contains? profile :prefLabel)
+                                (get-in profile [:prefLabel
+                                                 (-> (keys (:prefLabel profile))
+                                                     first)])
+                                (str "Untitled Profile " (+ idx 1)))
+               :selected      (= selected mode-key)
+               :icon          "code"
+               :address       [idx]}))
+          (util/json-to-clj (js/JSON.parse data)
+                            :keywordize-keys true)))]
+    (if (empty? (filter (fn [mode] (:selected mode)) modes))
+      (assoc-in modes [0 :selected] true)
+      modes)))
+
+
 (re-frame/reg-event-db
- :input/set-value
+ :input/set-data
  global-interceptors
- (fn [db [_ input-key value & address]]
+ (fn [db [_ input-key data]]
+   (if (not= input-key :input/profiles)
+     ;;if not profiles just update
+     (assoc-in db [::db/input input-key :input-data] data)
+     ;;if profiles changed, update modes also
+     (let [modes (parse-profile-modes data
+                  (get-in db [::db/input input-key :input-modes]))]
+       (assoc-in db [::db/input input-key] {:input-modes modes
+                                            :input-data data})))))
+
+(re-frame/reg-event-fx
+ :input/set-all
+ (fn [{:keys [event db]} [_ data]]
+   (try
+     (let [json       (js/JSON.parse data)
+           profiles   (js/JSON.stringify (.. json -profiles))
+           personae   (js/JSON.stringify (.. json -personae))
+           alignments (js/JSON.stringify (.. json -alignments))
+           parameters (js/JSON.stringify (.. json -parameters))]
+       {:dispatch-n [[:input/set-data :input/profiles profiles]
+                     [:input/set-data :input/personae personae]
+                     [:input/set-data :input/alignments alignments]
+                     [:input/set-data :input/parameters parameters]]})
+     (catch js/Error. e
+       (do
+         (snackbar! "Error parsing JSON Input")
+         db)))))
+
+
+(re-frame/reg-event-fx
+ :input/set-value
+ (fn [{:keys [event db]} [_ input-key value & address]]
    (try
      (let [input-json (get-in db [::db/input input-key :input-data])
            data       (or (util/json-to-clj (js/JSON.parse input-json)
@@ -106,17 +144,33 @@
                           {})
            new-data   (assoc-in data address value)
            new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
-       (assoc-in db [::db/input input-key :input-data]
-                 new-json))
+       {:dispatch [:input/set-data input-key new-json]})
      (catch js/Error. e
        (do
          (pprint ["Parse Problem!" e])
          db)))))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
+ :input/set-value-json
+ (fn [{:keys [event db]} [_ input-key value & address]]
+   (try
+     (let [input-json (get-in db [::db/input input-key :input-data])
+           data       (or (util/json-to-clj (js/JSON.parse input-json)
+                                            :keywordize-keys true)
+                          {})
+           new-data   (assoc-in data address
+                                (util/json-to-clj (js/JSON.parse value)
+                                                  :keywordize-keys true))
+           new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
+       {:dispatch [:input/set-data input-key new-json]})
+     (catch js/Error. e
+       (do
+         (pprint ["Parse Problem!" e])
+         db)))))
+
+(re-frame/reg-event-fx
  :input/set-ifi
- global-interceptors
- (fn [db [_ input-key ifi & address]]
+ (fn [{:keys [event db]} [_ input-key ifi & address]]
    (try
      (let [input-json (get-in db [::db/input input-key :input-data])
            data       (or (util/json-to-clj (js/JSON.parse input-json)
@@ -127,42 +181,38 @@
                              (first ifi) (second ifi))
            new-data   (assoc-in data address new-member)
            new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
-       (assoc-in db [::db/input input-key :input-data]
-                 new-json))
+       {:dispatch [:input/set-data input-key new-json]})
      (catch js/Error. e
        (do
          (pprint ["Parse Problem!" e])
          db)))))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :input/add-element
- global-interceptors
- (fn [db [_ input-key value & address]]
+ (fn [{:keys [event db]} [_ input-key value & address]]
    (try
      (let [input-json (get-in db [::db/input input-key :input-data])
            data       (or (util/json-to-clj (js/JSON.parse input-json)
-                                   :keywordize-keys true)
+                                            :keywordize-keys true)
                           {})
-           new-data    (if (= nil address)
-                         (conj data value)
-                         (assoc-in data address
-                                   (conj (get-in data address) value)))
+           new-data   (if (= nil address)
+                        (conj data value)
+                        (assoc-in data address
+                                  (conj (get-in data address) value)))
            new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
-       (assoc-in db [::db/input input-key :input-data]
-                 new-json))
+       {:dispatch [:input/set-data input-key new-json]})
      (catch js/Error. e
        (do
          (pprint ["Parse Problem!" e])
          db)))))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :input/remove-element
- global-interceptors
- (fn [db [_ input-key index & address]]
+ (fn [{:keys [event db]} [_ input-key index & address]]
    (try
      (let [input-json (get-in db [::db/input input-key :input-data])
            data       (or (util/json-to-clj (js/JSON.parse input-json)
-                                   :keywordize-keys true)
+                                            :keywordize-keys true)
                           {})
            new-data   (if (= nil address)
                         (vec (concat (subvec data 0 index)
@@ -172,8 +222,7 @@
                                     (vec (concat (subvec coll 0 index)
                                                  (subvec coll (inc index)))))))
            new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
-       (assoc-in db [::db/input input-key :input-data]
-                 new-json))
+       {:dispatch [:input/set-data input-key new-json]})
      (catch js/Error. e
        (do
          (pprint ["Parse Problem!" e])

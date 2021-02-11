@@ -150,10 +150,24 @@ div.edit-basic {
   height: 300px;
 }
 
+div.max div.edit-basic {
+  overflow: visible;
+  height: 100%;
+}
+
 .clickable {
   cursor: pointer;
 }
 
 span.element-button {
   font-size: smaller;
+}
+
+
+.flatpickr-input {
+  width:       289px;
+  padding:     8px;
+  font-size:   14px;
+  color:       #666666;
+  font-weight: 400;
 }

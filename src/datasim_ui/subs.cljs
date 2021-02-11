@@ -50,6 +50,15 @@
    (get-in data address)))
 
 (reg-sub
+ :input/get-value-json
+ (fn [[_ input-key & address]]
+   (subscribe (into [] (concat
+                        [:input/get-value input-key]
+                        address))))
+ (fn [value [_ input-key & address]]
+   (js/JSON.stringify (util/clj-to-json value) nil 2)))
+
+(reg-sub
  :input/get-actor-ifis
  (fn [_ _]
    (subscribe [:input/get-parsed-data :input/personae]))

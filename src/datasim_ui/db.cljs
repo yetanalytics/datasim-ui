@@ -12,11 +12,13 @@
 (s/def :editor-mode/display string?)
 (s/def :editor-mode/icon string?)
 (s/def :editor-mode/selected boolean?)
+(s/def :editor-mode/address vector?)
 (s/def ::editor-mode
   (s/keys :req-un [:editor-mode/display
                    :editor-mode/mode
                    :editor-mode/selected]
-          :opt    [:editor-mode/icon]))
+          :opt    [:editor-mode/icon
+                   :editor-mode/address]))
 
 (s/def ::input-modes
   (s/every ::editor-mode))

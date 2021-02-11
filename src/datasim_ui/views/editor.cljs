@@ -98,7 +98,8 @@
                [:span.mdc-tab-indicator.mdc-tab-indicator
                 [:span.mdc-tab-indicator__content.mdc-tab-indicator__content--underline]]
                [:span.mdc-tab__ripple]])]]]])
-      [form/edit-form key @(subscribe [:input/get-selected-mode key])]]]))
+      (let [mode @(subscribe [:input/get-selected-mode key])]
+        [form/edit-form key mode])]]))
 
 (defn editor
   [key]

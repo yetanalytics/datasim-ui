@@ -6,10 +6,12 @@
             [clojure.edn                 :as edn]
             [datasim-ui.functions        :as fns]
             [datasim-ui.util             :as util]
+            [datasim-ui.timezone         :as tz]
             [datasim-ui.views.textfield  :as textfield]
             [datasim-ui.views.dropdown   :as dropdown]
             [datasim-ui.views.checkbox   :as checkbox]
             [datasim-ui.views.snackbar   :refer [snackbar!]]
+            [datasim-ui.views.picker     :as picker]
             [cljsjs.codemirror.mode.javascript]
             [cljsjs.codemirror.addon.lint.javascript-lint]
             [cljsjs.codemirror.addon.lint.json-lint]
@@ -156,7 +158,9 @@
   )
 
 (defmulti edit-form (fn [key mode]
-                      [key (:mode mode)]))
+                      [key (if (contains? mode :mode-category)
+                             (:mode-category mode)
+                             (:mode mode))]))
 
 ;; Default to error message
 (defmethod edit-form :default [_ _]
@@ -178,31 +182,57 @@
    [:div.advanced
     [textarea key]]])
 
-(defmethod edit-form [:input/profiles :advanced] [key mode]
+(defmethod edit-form [:input/profiles :profile-tabs] [key mode]
   [:div
    [:div.advanced
-    [textarea key]]])
+    {:key (str "profile-editor-" (name (:mode mode)))}
+    [cm/codemirror
+     {:mode              "application/json"
+      :theme             "default"
+      :lineNumbers       true
+      :lineWrapping      true
+      :matchBrackets     true
+      :autoCloseBrackets true
+      :gutters           ["CodeMirror-link-markers"]
+      :lint              true}
+     {:name   (name (:mode mode))
+      :value  @(subscribe (into [] (concat
+                                    [:input/get-value-json key]
+                                    (:address mode))))
+      :events {"change" (fn [this [cm obj]]
+                          (pprint (:address mode))
+                          (dispatch
+                           (into []
+                                 (concat
+                                  [:input/set-value-json key (.getValue cm)]
+                                  (:address mode)))))}}]]])
 
 (defmethod edit-form [:input/parameters :basic] [key mode]
   [:div.edit-basic
-   [textfield/textfield
-    :id        "input.parameters.start"
-    :label     "Start Time"
-    :value     @(subscribe [:input/get-value :input/parameters :start])
-    :on-change (fn [e]
-                 (fns/ps-event e)
-                 (dispatch [:input/set-value key (.. e -target -value) :start]))]
-   [textfield/textfield
-    :id        "input.parameters.end"
-    :label     "End Time"
-    :value     @(subscribe [:input/get-value :input/parameters :end])
-    :on-change (fn [e]
-                 (fns/ps-event e)
-                 (dispatch [:input/set-value key (.. e -target -value) :end]))]
-   [textfield/textfield
+   [:p
+    "Start Date"]
+   [picker/date-time-picker
+    :close-fn  (fn [date]
+                 (dispatch [:input/set-value key date :start]))
+    :date      @(subscribe [:input/get-value key :start])
+    :?max-date nil]
+
+   [:p
+    "End Date"]
+   [picker/date-time-picker
+    :close-fn  (fn [date]
+                 (dispatch [:input/set-value key date :end]))
+    :date      @(subscribe [:input/get-value key :end])
+    :?max-date nil]
+   [dropdown/dropdown
     :id        "input.parameters.timezone"
     :label     "Timezone"
     :value     @(subscribe [:input/get-value :input/parameters :timezone])
+    :options   (mapv (fn [zone]
+                       {:value (:zone zone)
+                        :display (str (:zone zone)
+                                      " (" (:offset zone) ")")})
+                     tz/timezones)
     :on-change (fn [e]
                  (fns/ps-event e)
                  (dispatch [:input/set-value key (.. e -target -value) :timezone]))]
@@ -212,7 +242,17 @@
     :value     @(subscribe [:input/get-value :input/parameters :seed])
     :on-change (fn [e]
                  (fns/ps-event e)
-                 (dispatch [:input/set-value key (.. e -target -value) :seed]))]])
+                 (dispatch [:input/set-value key (js/parseInt (.. e -target -value)) :seed]))]
+
+   [textfield/numeric
+    :id        (str "input.parameters.max")
+    :label     "Max Statements"
+    :step      "1"
+    :min       "0"
+    :value     @(subscribe [:input/get-value :input/parameters :max])
+    :on-change (fn [e]
+                 (fns/ps-event e)
+                 (dispatch [:input/set-value key (js/parseInt (.. e -target -value)) :max]))]])
 
 (defmethod edit-form [:input/personae :basic] [key mode]
   (if-valid

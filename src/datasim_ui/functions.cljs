@@ -28,7 +28,9 @@
     (.then (js/Promise.resolve
             (.text (aget (.. target -files) 0)))
            #(do
-              (dispatch [:input/set-data k %])
+              (if (= k :input/all)
+                (dispatch [:input/set-all %])
+                (dispatch [:input/set-data k %]))
               ;; clear out the temp file holding the input, so it can be reused.
               (set! (.. target -value) "")))))
 
