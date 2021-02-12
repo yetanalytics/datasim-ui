@@ -31,7 +31,13 @@
                        xhr       (js/XMLHttpRequest.)
                        username  @(subscribe [:options/username])
                        password  @(subscribe [:options/password])]
-                   (.append form-data "profiles" @(subscribe [:input/get-data :input/profiles]))
+                   (.append form-data "profiles"
+                            (let [data @(subscribe [:input/get-data :input/profiles])
+                                  parsed (mapv (fn [profile]
+                                                 (util/json-to-clj (js/JSON.parse profile)
+                                                                   :keywordize-keys true))
+                                               data)]
+                              (js/JSON.stringify (util/clj-to-json parsed))))
                    (.append form-data "personae" @(subscribe [:input/get-data :input/personae]))
                    (.append form-data "alignments" @(subscribe [:input/get-data :input/alignments]))
                    (.append form-data "parameters" @(subscribe [:input/get-data :input/parameters]))
@@ -155,9 +161,9 @@
      "The JSON for this input is not valid and must be fixed or removed before using this edit mode."]))
 
 (defmulti edit-form (fn [key mode]
-                      [key (if (contains? mode :mode-category)
-                             (:mode-category mode)
-                             (:mode mode))]))
+                      [key (or
+                            (:mode-type mode)
+                            (:mode mode))]))
 
 ;; Default to error message
 (defmethod edit-form :default [_ _]

@@ -18,12 +18,7 @@
       :gutters           ["CodeMirror-link-markers"]
       :lint              true}
      {:name   (name (:mode mode))
-      :value  @(subscribe (into [] (concat
-                                    [:input/get-value-json key]
-                                    (:address mode))))
+      :value  @(subscribe [:input/get-value-vector key (:index mode)])
       :events {"change" (fn [this [cm obj]]
-                          (dispatch
-                           (into []
-                                 (concat
-                                  [:input/set-value-json key (.getValue cm)]
-                                  (:address mode)))))}}]]])
+                          (dispatch [:input/set-value-vector key (.getValue cm)
+                                     (:index mode)]))}}]]])

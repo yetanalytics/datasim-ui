@@ -51,12 +51,12 @@
                                :selected true}]}
                :input/profiles
                {:input-modes [{:mode          :default
-                               :mode-category :profile-tabs
-                               :display       "Untitled Profile 1"
+                               :mode-type     :profile-tabs
+                               :display       "Untitled 1"
                                :icon          "code"
                                :selected      true
-                               :address       [0]}]
-                :input-data  "[{}]"}}))))
+                               :index         0}]
+                :input-data  ["{}"]}}))))
 
 (re-frame/reg-event-db
  :input/set-modes
@@ -75,45 +75,17 @@
                       (assoc-in mode [:selected] (= (:mode mode) mode-key)))
                     modes)))))
 
-(defn parse-profile-modes
-  [data modes]
-  (let [selected
-        (-> (filter (fn [mode] (:selected mode)) modes)
-            first)
-        modes
-        (vec
-         (map-indexed
-          (fn [idx profile]
-            (let [mode-key (keyword (str "profile-" idx))]
-              {:mode          mode-key
-               :mode-category :profile-tabs
-               :display       (if (contains? profile :prefLabel)
-                                (get-in profile [:prefLabel
-                                                 (-> (keys (:prefLabel profile))
-                                                     first)])
-                                (str "Untitled Profile " (+ idx 1)))
-               :selected      (= selected mode-key)
-               :icon          "code"
-               :address       [idx]}))
-          (util/json-to-clj (js/JSON.parse data)
-                            :keywordize-keys true)))]
-    (if (empty? (filter (fn [mode] (:selected mode)) modes))
-      (assoc-in modes [0 :selected] true)
-      modes)))
 
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :input/set-data
  global-interceptors
- (fn [db [_ input-key data]]
-   (if (not= input-key :input/profiles)
-     ;;if not profiles just update
-     (assoc-in db [::db/input input-key :input-data] data)
-     ;;if profiles changed, update modes also
-     (let [modes (parse-profile-modes data
-                  (get-in db [::db/input input-key :input-modes]))]
-       (assoc-in db [::db/input input-key] {:input-modes modes
-                                            :input-data data})))))
+ (fn [{:keys [event db]} [_ input-key data]]
+   ;; If profiles, also trigger header update event
+   (cond->
+       {:db (assoc-in db [::db/input input-key :input-data] data)}
+        (= input-key :input/profiles)
+        (conj {:dispatch [:input/update-profile-headers]}))))
 
 (re-frame/reg-event-fx
  :input/set-all
@@ -124,7 +96,7 @@
            personae   (js/JSON.stringify (.. json -personae))
            alignments (js/JSON.stringify (.. json -alignments))
            parameters (js/JSON.stringify (.. json -parameters))]
-       {:dispatch-n [[:input/set-data :input/profiles profiles]
+       {:dispatch-n [[:input/import-vector :input/profiles profiles]
                      [:input/set-data :input/personae personae]
                      [:input/set-data :input/alignments alignments]
                      [:input/set-data :input/parameters parameters]]})
@@ -132,7 +104,6 @@
        (do
          (snackbar! "Error parsing JSON Input")
          db)))))
-
 
 (re-frame/reg-event-fx
  :input/set-value
@@ -143,24 +114,6 @@
                                             :keywordize-keys true)
                           {})
            new-data   (assoc-in data address value)
-           new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
-       {:dispatch [:input/set-data input-key new-json]})
-     (catch js/Error. e
-       (do
-         (pprint ["Parse Problem!" e])
-         db)))))
-
-(re-frame/reg-event-fx
- :input/set-value-json
- (fn [{:keys [event db]} [_ input-key value & address]]
-   (try
-     (let [input-json (get-in db [::db/input input-key :input-data])
-           data       (or (util/json-to-clj (js/JSON.parse input-json)
-                                            :keywordize-keys true)
-                          {})
-           new-data   (assoc-in data address
-                                (util/json-to-clj (js/JSON.parse value)
-                                                  :keywordize-keys true))
            new-json   (js/JSON.stringify (util/clj-to-json new-data) nil 2)]
        {:dispatch [:input/set-data input-key new-json]})
      (catch js/Error. e
@@ -227,6 +180,90 @@
        (do
          (pprint ["Parse Problem!" e])
          db)))))
+
+;; Profile Related
+
+(re-frame/reg-event-fx
+ :input/set-value-vector
+ (fn [{:keys [event db]} [_ input-key value index]]
+   (let [data   (get-in db [::db/input input-key :input-data])]
+     {:dispatch [:input/set-data input-key (assoc-in data [index] value)]})))
+
+(re-frame/reg-event-fx
+ :input/remove-element-vector
+ (fn [{:keys [event db]} [_ input-key index]]
+   (pprint [input-key index])
+   (let [data (get-in db [::db/input input-key :input-data])]
+     {:dispatch [:input/set-data input-key
+                 (into [] (concat (subvec data 0 index)
+                                  (subvec data (inc index))))]})))
+
+(re-frame/reg-event-fx
+ :input/add-element-vector
+ (fn [{:keys [event db]} [_ input-key value]]
+   (let [data (get-in db [::db/input input-key :input-data])]
+     {:dispatch [:input/set-data input-key (conj data value)]})))
+
+
+(re-frame/reg-event-db
+ :input/update-profile-headers
+ global-interceptors
+ (fn [db _]
+   (let [;;get currently selected tab
+         selected
+         (->
+          (filter (fn [mode] (:selected mode))
+                  (get-in db [::db/input :input/profiles :input-modes]))
+          first
+          :mode)
+         ;;parse new tabs from data
+         modes
+         (into []
+               (map-indexed
+                (fn [idx profile]
+                  (let [mode-key (keyword (str "profile-" idx))
+                        profile-data (try
+                                       (util/json-to-clj (js/JSON.parse profile)
+                                                         :keywordize-keys true)
+                                       (catch js/Error. e
+                                         {}))
+                        display  (if (contains? profile-data :prefLabel)
+                                   (-> (vals (:prefLabel profile-data))
+                                       shuffle
+                                       first)
+                                   (str "Untitled " (+ idx 1)))]
+                    {:mode      mode-key
+                     :mode-type :profile-tabs
+                     :display   display
+                     :selected  (= selected mode-key)
+                     :icon      "code"
+                     :index     idx}))
+                (get-in db [::db/input :input/profiles :input-data])))]
+     (assoc-in db [::db/input :input/profiles :input-modes]
+               ;;if the old selected doesnt exist, just select first element
+               (if (empty? (filter (fn [mode] (:selected mode)) modes))
+                 (assoc-in modes [0 :selected] true)
+                 modes)))))
+
+(re-frame/reg-event-fx
+ :input/import-vector
+ global-interceptors
+ (fn [_ [_ input-key data]]
+   ;; If importing to a vector type like profiles, check if single or array
+   (let [parsed (util/json-to-clj (js/JSON.parse data)
+                                  :keywordize-keys true)]
+     {:dispatch (if (vector? parsed)
+                  ;;if vector convert contents to vector of strings and save
+                  [:input/set-data input-key
+                   (mapv (fn [profile]
+                           (try
+                             (js/JSON.stringify (util/clj-to-json profile)
+                                                nil 2)
+                             (catch js/Error. e
+                               "{}")))
+                         parsed)]
+                  ;;if not just add contents to the end of existing proile vec
+                  [:input/add-element-vector input-key data])})))
 
 (re-frame/reg-event-db
  :focus/set

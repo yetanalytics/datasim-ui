@@ -9,16 +9,16 @@
 
 
 (s/def :editor-mode/mode keyword?)
-(s/def :editor-mode/mode-category keyword?)
+(s/def :editor-mode/mode-type keyword?)
 (s/def :editor-mode/display string?)
 (s/def :editor-mode/icon string?)
 (s/def :editor-mode/selected boolean?)
-(s/def :editor-mode/address vector?)
+(s/def :editor-mode/index int?)
 (s/def ::editor-mode
   (s/keys :req-un [:editor-mode/display
                    :editor-mode/mode
                    :editor-mode/selected]
-          :opt    [:editor-mode/mode-category
+          :opt    [:editor-mode/mode-type
                    :editor-mode/icon
                    :editor-mode/address]))
 
@@ -28,11 +28,18 @@
 (s/def ::input-data
   string?)
 
+(s/def ::input-data-vec
+  vector?)
+
 (s/def ::input-map
   (s/keys :opt [::input-modes
                 ::input-data]))
 
-(s/def :input/profiles ::input-map)
+(s/def ::input-map-vec
+  (s/keys :opt [::input-modes
+                ::input-data-vec]))
+
+(s/def :input/profiles ::input-map-vec)
 (s/def :input/personae ::input-map)
 (s/def :input/alignments ::input-map)
 (s/def :input/parameters ::input-map)

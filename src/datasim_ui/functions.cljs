@@ -28,9 +28,10 @@
     (.then (js/Promise.resolve
             (.text (aget (.. target -files) 0)))
            #(do
-              (if (= k :input/all)
-                (dispatch [:input/set-all %])
-                (dispatch [:input/set-data k %]))
+              (dispatch (case k
+                          :input/all      [:input/set-all %]
+                          :input/profiles [:input/import-vector k %]
+                          [:input/set-data k %]))
               ;; clear out the temp file holding the input, so it can be reused.
               (set! (.. target -value) "")))))
 

@@ -98,10 +98,25 @@
                    {:aria-hidden "true"}
                    (:icon mode)])
                 [:span.mdc-tab__text-label
-                 (:display mode)]]
-               [:span.mdc-tab-indicator.mdc-tab-indicator
-                [:span.mdc-tab-indicator__content.mdc-tab-indicator__content--underline]]
-               [:span.mdc-tab__ripple]])]]]])
+                 (if (:display mode)
+                   (subs (:display mode) 0 12)
+                   (:mode mode))]]
+               (if (= (:mode-type mode) :profile-tabs)
+                 [:span.mdc-tab__icon.material-icons.remove-profile.clickable
+                  {:aria-hidden "true"
+                   :on-click (fn [e]
+                               (dispatch [:input/remove-element-vector key
+                                          (:index mode)]))}
+                  "clear"])
+               ])
+            (if (= :profile-tabs (-> modes
+                                     first
+                                     :mode-type))
+              [:span.mdc-tab__icon.material-icons.add-profile.clickable
+               {:aria-hidden "true"
+                :on-click (fn [e]
+                            (dispatch [:input/add-element-vector key "{}"]))}
+               "add"])]]]])
       (let [mode @(subscribe [:input/get-selected-mode key])]
         [form/edit-form key mode])]]))
 
@@ -111,3 +126,9 @@
     (if (= key ?focus)
       [editor* key :max])
     [editor* key :min]))
+
+
+(comment
+  [:span.mdc-tab-indicator.mdc-tab-indicator
+   [:span.mdc-tab-indicator__content.mdc-tab-indicator__content--underline]]
+  [:span.mdc-tab__ripple])

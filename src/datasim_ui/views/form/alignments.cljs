@@ -4,12 +4,35 @@
             [datasim-ui.functions        :as fns]
             [datasim-ui.views.form       :as form]
             [datasim-ui.views.textfield  :as textfield]
-            [datasim-ui.views.dropdown   :as dropdown]))
+            [datasim-ui.views.dropdown   :as dropdown]
+            [clojure.pprint              :refer [pprint]]))
 
 (defmethod form/edit-form [:input/alignments :advanced] [key mode]
   [:div
    [:div.advanced
     [form/textarea key]]])
+
+
+(comment
+  (def initial [:a :b])
+
+  (let [initial [{:value "" :display "Select Component"}]
+        to-add {:key1 [:c :d] :key2 [:e :f]}]
+    (reduce (fn [all key]
+              (into (conj all
+                          {:display (str "---" (name comp-key) "---")
+                           :value ""})
+                    (mapv
+                     (fn [iri] {:display iri
+                                :value iri})
+                     (key to-add))
+                    ))
+            initial
+            (keys to-add)))
+
+
+
+  )
 
 (defmethod form/edit-form [:input/alignments :basic] [key mode]
   (form/if-valid
@@ -32,11 +55,20 @@
                                        {:value actor
                                         :display actor})
                                      @(subscribe [:input/get-actor-roles {}])))
-           profile-options (into [{:value "" :display "Select Component"}]
-                                 (mapv (fn [comp]
-                                         {:value comp
-                                          :display comp})
-                                       @(subscribe [:input/get-profile-iris {}])))]
+           profile-options  (let [iris @(subscribe [:input/get-profile-iris {}])]
+                              (reduce (fn [all key]
+                                        (into (conj all
+                                                    {:display
+                                                     (str "##" (name key)
+                                                          "##")
+                                                     :value ""})
+                                              (mapv
+                                               (fn [iri] {:display iri
+                                                          :value iri})
+                                               (key iris))
+                                              ))
+                                      [{:value "" :display "Select Component"}]
+                                      (keys iris)))]
        [:div.cardlist-container
         (for [a-index (range (count @(subscribe [:input/get-parsed-data key])))]
           [:div.mdc-card.mdc-card--outlined

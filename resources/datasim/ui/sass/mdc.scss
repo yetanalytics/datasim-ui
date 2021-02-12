@@ -25,3 +25,9 @@ $mdc-theme-background: #fff;
 .cardlist-container .mdc-card {
   padding: 20px;
 }
+
+
+.mdc-tab-scroller__scroll-content {
+  width: 500px;
+  overflow: auto;
+}

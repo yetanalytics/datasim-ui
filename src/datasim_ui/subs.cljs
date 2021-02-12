@@ -50,6 +50,13 @@
    (get-in data address)))
 
 (reg-sub
+ :input/get-value-vector
+ (fn [[_ input-key index]]
+   (subscribe [:input/get-data input-key]))
+ (fn [input-data [_ _ index]]
+   (get-in input-data [index])))
+
+(reg-sub
  :input/get-value-json
  (fn [[_ input-key & address]]
    (subscribe (into [] (concat
@@ -104,23 +111,26 @@
 (reg-sub
  :input/get-profile-iris
  (fn [_ _]
-   (subscribe [:input/get-parsed-data :input/profiles]))
+   (subscribe [:input/get-data :input/profiles]))
  (fn [data _]
-   (if (= nil data)
+   (if (empty? data)
      []
-     (reduce (fn [iris input]
-               (concat
-                iris
-                ["---Patterns---"]
-                (mapv (fn [pattern] (:id pattern))
-                      (:patterns input))
-                ["---Concepts---"]
-                (mapv (fn [concept] (:id concept))
-                      (:concepts input))
-                ["---Templates---"]
-                (mapv (fn [template] (:id template))
-                      (:templates input))))
-             []
+     (reduce (fn [iris profile]
+               (try
+                 (let [parsed (util/json-to-clj (js/JSON.parse profile)
+                                                :keywordize-keys true)]
+                   {:patterns  (concat (:patterns iris)
+                                       (mapv (fn [p] (:id p))
+                                             (:patterns parsed)))
+                    :concepts  (concat (:concepts iris)
+                                       (mapv (fn [c] (:id c))
+                                             (:concepts parsed)))
+                    :templates (concat (:templates iris)
+                                       (mapv (fn [t] (:id t))
+                                             (:templates parsed)))})
+                 (catch js/Error. e
+                   iris)))
+             {:patterns [] :concepts [] :templates []}
              data))))
 
 (reg-sub
