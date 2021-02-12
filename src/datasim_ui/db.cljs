@@ -9,6 +9,7 @@
 
 
 (s/def :editor-mode/mode keyword?)
+(s/def :editor-mode/mode-category keyword?)
 (s/def :editor-mode/display string?)
 (s/def :editor-mode/icon string?)
 (s/def :editor-mode/selected boolean?)
@@ -17,7 +18,8 @@
   (s/keys :req-un [:editor-mode/display
                    :editor-mode/mode
                    :editor-mode/selected]
-          :opt    [:editor-mode/icon
+          :opt    [:editor-mode/mode-category
+                   :editor-mode/icon
                    :editor-mode/address]))
 
 (s/def ::input-modes
@@ -87,7 +89,6 @@
                         :opt [:dialog/title
                               :dialog/form
                               :dialog/save]))
-
 
 (s/def ::db (s/keys :req [::options
                           ::dialog
