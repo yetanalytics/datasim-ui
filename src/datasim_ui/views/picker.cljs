@@ -44,26 +44,3 @@
                                  (.set fp "minDate" (:?min-date args))
                                  (.set fp "maxDate" (:?max-date args))
                                  (.redraw fp)))})))
-
-
-(comment
-
-  (defn textarea
-    [key]
-    [cm/codemirror
-     {:mode              "application/json"
-      :theme             "default"
-      :lineNumbers       true
-      :lineWrapping      true
-      :matchBrackets     true
-      :autoCloseBrackets true
-      :gutters           ["CodeMirror-link-markers"]
-      :lint              true}
-     {:name   (util/input-name key)
-      :value  @(subscribe [:input/get-data key])
-      :events {"change" (fn [this [cm obj]]
-                          (dispatch [:input/set-data key (.getValue cm)]))}}])
-
-
-
-  )
