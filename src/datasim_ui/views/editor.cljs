@@ -1,6 +1,10 @@
 (ns datasim-ui.views.editor
   (:require [re-frame.core         :refer [dispatch subscribe]]
             [datasim-ui.views.form :as form]
+            [datasim-ui.views.form.alignments]
+            [datasim-ui.views.form.parameters]
+            [datasim-ui.views.form.personae]
+            [datasim-ui.views.form.profiles]
             [datasim-ui.functions  :as fns]
             [datasim-ui.util       :refer [inputs]]
             [clojure.pprint        :refer [pprint]]))
