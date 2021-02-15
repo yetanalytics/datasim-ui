@@ -29,7 +29,9 @@
   [key size]
   (let [input-name (get inputs key)
         id         (str input-name "-input")
-        data       @(subscribe [:input/get-data key])
+        data       (if (= key :input/profiles)
+                     @(subscribe [:input/get-data-vector key])
+                     @(subscribe [:input/get-data key]))
         modes      @(subscribe [:input/get-modes key])]
     [:div.editor
      {:class (if (= :min size)

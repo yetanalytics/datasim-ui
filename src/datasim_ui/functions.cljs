@@ -78,7 +78,12 @@
                                                 :headers           {"Access-Control-Allow-Origin" "*"}
                                                 :query-params      {"url" (js/encodeURIComponent @(subscribe [:dialog.form/text :url]))}}))]
                              (condp = (:status response)
-                               200 (dispatch [:input/set-data k (:body response)])
+                               200 (dispatch (case k
+                                               :input/all
+                                               [:input/set-all (:body response)]
+                                               :input/profiles
+                                               [:input/import-vector k (:body response)]
+                                               [:input/set-data k (:body response)]))
                                400 (snackbar! "URL was malformed")
                                406 (snackbar! "Client Error")
                                404 (snackbar! "Could not find URL")

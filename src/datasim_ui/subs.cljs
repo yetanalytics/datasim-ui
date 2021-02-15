@@ -57,13 +57,18 @@
    (get-in input-data [index])))
 
 (reg-sub
- :input/get-value-json
- (fn [[_ input-key & address]]
-   (subscribe (into [] (concat
-                        [:input/get-value input-key]
-                        address))))
- (fn [value [_ input-key & address]]
-   (js/JSON.stringify (util/clj-to-json value) nil 2)))
+ :input/get-data-vector
+ (fn [[_ input-key]]
+   (subscribe [:input/get-data input-key]))
+ (fn [input-data _]
+   (try
+     (let [parsed (mapv (fn [element]
+                          (util/json-to-clj (js/JSON.parse element)
+                                            :keywordize-keys true))
+                        input-data)]
+       (js/JSON.stringify (util/clj-to-json parsed)))
+     (catch js/Error. e
+       "[]"))))
 
 (reg-sub
  :input/get-actor-ifis

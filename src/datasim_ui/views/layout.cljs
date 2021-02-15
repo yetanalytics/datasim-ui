@@ -28,7 +28,7 @@
             [:button.minorbutton
              {:on-click (fn [e]
                           (fns/export-file e
-                                           (let [profiles   (js/JSON.parse @(subscribe [:input/get-data :input/profiles]))
+                                           (let [profiles   (js/JSON.parse @(subscribe [:input/get-data-vector :input/profiles]))
                                                  personae   (js/JSON.parse @(subscribe [:input/get-data :input/personae]))
                                                  alignments (js/JSON.parse @(subscribe [:input/get-data :input/alignments]))
                                                  parameters (js/JSON.parse @(subscribe [:input/get-data :input/parameters]))
