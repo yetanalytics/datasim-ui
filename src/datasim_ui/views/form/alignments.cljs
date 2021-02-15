@@ -12,34 +12,11 @@
    [:div.advanced
     [form/textarea key]]])
 
-
-(comment
-  (def initial [:a :b])
-
-  (let [initial [{:value "" :display "Select Component"}]
-        to-add {:key1 [:c :d] :key2 [:e :f]}]
-    (reduce (fn [all key]
-              (into (conj all
-                          {:display (str "---" (name comp-key) "---")
-                           :value ""})
-                    (mapv
-                     (fn [iri] {:display iri
-                                :value iri})
-                     (key to-add))
-                    ))
-            initial
-            (keys to-add)))
-
-
-
-  )
-
 (defmethod form/edit-form [:input/alignments :basic] [key mode]
   (form/if-valid
       key
-    [:div.edit-basic
-     [:h5
-      "Alignments"]
+      [:div.edit-basic
+       {:key (str "alignment" key)}
      (let [agent-options (into [{:value "" :display "Select Actor"}]
                                (mapv (fn [actor]
                                        {:value actor

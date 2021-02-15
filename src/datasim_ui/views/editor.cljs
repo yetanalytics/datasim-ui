@@ -108,7 +108,10 @@
                                (dispatch [:input/remove-element-vector key
                                           (:index mode)]))}
                   "clear"])
-               ])
+               [:span
+                {:class (cond-> "mdc-tab-indicator"
+                          (:selected mode) (str " mdc-tab-indicator--active"))}
+                [:span.mdc-tab-indicator__content.mdc-tab-indicator__content--underline]]])
             (if (= :profile-tabs (-> modes
                                      first
                                      :mode-type))
@@ -126,9 +129,3 @@
     (if (= key ?focus)
       [editor* key :max])
     [editor* key :min]))
-
-
-(comment
-  [:span.mdc-tab-indicator.mdc-tab-indicator
-   [:span.mdc-tab-indicator__content.mdc-tab-indicator__content--underline]]
-  [:span.mdc-tab__ripple])

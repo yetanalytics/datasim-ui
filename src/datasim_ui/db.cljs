@@ -20,7 +20,7 @@
                    :editor-mode/selected]
           :opt    [:editor-mode/mode-type
                    :editor-mode/icon
-                   :editor-mode/address]))
+                   :editor-mode/index]))
 
 (s/def ::input-modes
   (s/every ::editor-mode))
