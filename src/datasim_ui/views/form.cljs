@@ -32,7 +32,7 @@
                        username  @(subscribe [:options/username])
                        password  @(subscribe [:options/password])]
                    (.append form-data "profiles" @(subscribe [:input/get-data-vector :input/profiles]))
-                   (.append form-data "personae" @(subscribe [:input/get-data :input/personae]))
+                   (.append form-data "personae-array" @(subscribe [:input/get-data :input/personae]))
                    (.append form-data "alignments" @(subscribe [:input/get-data :input/alignments]))
                    (.append form-data "parameters" @(subscribe [:input/get-data :input/parameters]))
                    (.append form-data "lrs-endpoint" @(subscribe [:options/endpoint]))

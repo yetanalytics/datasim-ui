@@ -48,7 +48,8 @@
                               {:mode     :advanced
                                :display  "Advanced"
                                :icon     "code"
-                               :selected true}]}
+                               :selected true}]
+                :input-data "[]"}
                :input/profiles
                {:input-modes [{:mode          :default
                                :mode-type     :profile-tabs

@@ -40,7 +40,7 @@
                 ::input-data-vec]))
 
 (s/def :input/profiles ::input-map-vec)
-(s/def :input/personae ::input-map)
+(s/def :input/personae ::input-map-vec)
 (s/def :input/alignments ::input-map)
 (s/def :input/parameters ::input-map)
 (s/def ::input (s/keys :opt [:input/profiles

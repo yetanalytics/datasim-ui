@@ -88,7 +88,10 @@
                            (str (:homePage value) ","
                                 (:name value))
                            value))))))
-           (:member data)))))
+           (reduce (fn [coll group]
+                     (into coll (:member group)))
+                   []
+                   data)))))
 
 (reg-sub
  :input/get-actor-roles
@@ -102,7 +105,10 @@
                  (conj roles (:role member))
                  roles))
              []
-             (:member data)))))
+             (reduce (fn [coll group]
+                       (into coll (:member group)))
+                     []
+                     data)))))
 
 (reg-sub
  :input/get-actor-groups
@@ -111,7 +117,7 @@
  (fn [data _]
    (if (= nil data)
      []
-     [(:name data)])))
+     (mapv :name data))))
 
 (reg-sub
  :input/get-profile-iris

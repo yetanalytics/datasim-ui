@@ -32,10 +32,10 @@
                                                  personae   (js/JSON.parse @(subscribe [:input/get-data :input/personae]))
                                                  alignments (js/JSON.parse @(subscribe [:input/get-data :input/alignments]))
                                                  parameters (js/JSON.parse @(subscribe [:input/get-data :input/parameters]))
-                                                 json       #js {"profiles"   profiles
-                                                                 "personae"   personae
-                                                                 "alignments" alignments
-                                                                 "parameters" parameters}]
+                                                 json       #js {"profiles"       profiles
+                                                                 "personae-array" personae
+                                                                 "alignments"     alignments
+                                                                 "parameters"     parameters}]
                                              (js/Blob. [(js/JSON.stringify json)]
                                                        util/clj-to-json {:type "application/json"}))
                                            "input.json"))}
