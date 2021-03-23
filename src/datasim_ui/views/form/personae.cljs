@@ -22,14 +22,14 @@
        [:div.mdc-card.mdc-card--outlined
         {:key (str "personae-group-" p-index)}
         [textfield/textfield
-         :id        "input.personae.name"
+         :id        (str "input.personae-group-" p-index ".name")
          :label     "Name"
          :value     @(subscribe [:input/get-value key p-index :name])
          :on-change (fn [e]
                       (fns/ps-event e)
                       (dispatch [:input/set-value key (.. e -target -value) p-index :name]))]
         [dropdown/dropdown
-         :id        "input.personae.typedrop"
+         :id        (str "input.personae-group-" p-index ".name")
          :label     "Type"
          :value     @(subscribe [:input/get-value key p-index :objectType])
          :options   [{:value "Group"
@@ -44,9 +44,9 @@
          (for [member-index (range (count @(subscribe [:input/get-value key p-index :member])))]
            (let [[ifi-key ifi-value] @(subscribe [:input/get-ifi key p-index :member member-index])]
              [:div.mdc-card.mdc-card--outlined
-              {:key (str "personae-member-" member-index)}
+              {:key (str "personae-group-" p-index "-member-" member-index)}
               [textfield/textfield
-               :id        (str "input.personae.member." member-index ".name")
+               :id        (str "input.personae-group-" p-index ".member." member-index ".name")
                :label     "Member Name"
                :value     @(subscribe [:input/get-value key p-index :member member-index :name])
                :on-change (fn [e]
@@ -54,7 +54,7 @@
                             (dispatch [:input/set-value key (.. e -target -value)
                                        p-index :member member-index :name]))]
               [textfield/textfield
-               :id        (str "input.personae.member." member-index ".role")
+               :id        (str "input.personae-group-" p-index ".member." member-index ".role")
                :label     "Role (optional)"
                :value     @(subscribe [:input/get-value key p-index :member member-index :role])
                :on-change (fn [e]
@@ -62,7 +62,7 @@
                             (dispatch [:input/set-value key (.. e -target -value)
                                        p-index :member member-index :role]))]
               [dropdown/dropdown
-               :id        "input.personae.member." member-index ".ifi.key"
+               :id        (str "input.personae-group-" p-index ".member." member-index ".ifi.key")
                :label     "Identifier Type"
                :value     (name ifi-key)
                :options   [{:value "mbox"
@@ -86,7 +86,7 @@
               (if (= ifi-key :account)
                 [:div
                  [textfield/textfield
-                  :id        (str "input.personae.member." member-index ".ifi.account.homePage")
+                  :id        (str "input.personae-group-" p-index ".member." member-index ".ifi.account.homePage")
                   :label     "Account Homepage"
                   :value     (:homePage ifi-value)
                   :on-change (fn [e]
@@ -95,7 +95,7 @@
                                                                        :name (:name ifi-value)}]
                                           p-index :member member-index]))]
                  [textfield/textfield
-                  :id        (str "input.personae.member." member-index ".ifi.account.name")
+                  :id        (str "input.personae-group-" p-index ".member." member-index ".ifi.account.name")
                   :label     "Account Name"
                   :value     (:name ifi-value)
                   :on-change (fn [e]
@@ -104,7 +104,7 @@
                                                                        :name (.. e -target -value)}]
                                           p-index :member member-index]))]]
                 [textfield/textfield
-                 :id        (str "input.personae.member." member-index ".ifi.value")
+                 :id        (str "input.personae-group-" p-index ".member." member-index ".ifi.value")
                  :label     (name ifi-key)
                  :value     ifi-value
                  :on-change (fn [e]

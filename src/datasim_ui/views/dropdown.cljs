@@ -25,7 +25,10 @@
         {:name name
          :id id
          :on-change on-change
-         :value value}
+         :value (or value
+                    (:value (first
+                             (filter #(:default %) options)))
+                    (:value (first options)))}
         (for [option options]
           [:option
            {:value (:value option)

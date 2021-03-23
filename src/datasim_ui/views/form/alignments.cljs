@@ -38,7 +38,7 @@
                                                     {:display
                                                      (str "##" (name key)
                                                           "##")
-                                                     :value ""})
+                                                     :value (name key)})
                                               (mapv
                                                (fn [iri] {:display iri
                                                           :value iri})
