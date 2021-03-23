@@ -17,3 +17,17 @@ $mdc-theme-background: #fff;
 .mdc-button:not(:disabled){
   color:white !important;
 }
+
+.cardlist-container {
+  width: 75%;
+}
+
+.cardlist-container .mdc-card {
+  padding: 20px;
+}
+
+
+.mdc-tab-scroller__scroll-content {
+  width: 500px;
+  overflow: auto;
+}

@@ -7,13 +7,15 @@
             [datasim-ui.functions        :as fns]
             [datasim-ui.util             :as util]
             [datasim-ui.views.textfield  :as textfield]
+            [datasim-ui.views.dropdown   :as dropdown]
             [datasim-ui.views.checkbox   :as checkbox]
             [datasim-ui.views.snackbar   :refer [snackbar!]]
             [cljsjs.codemirror.mode.javascript]
             [cljsjs.codemirror.addon.lint.javascript-lint]
             [cljsjs.codemirror.addon.lint.json-lint]
             [cljsjs.codemirror.addon.edit.matchbrackets]
-            [cljsjs.codemirror.addon.edit.closebrackets]))
+            [cljsjs.codemirror.addon.edit.closebrackets]
+            [clojure.pprint              :refer [pprint]]))
 
 (defn form
   [body]
@@ -29,10 +31,10 @@
                        xhr       (js/XMLHttpRequest.)
                        username  @(subscribe [:options/username])
                        password  @(subscribe [:options/password])]
-                   (.append form-data "profiles" @(subscribe [:input/profiles]))
-                   (.append form-data "personae" @(subscribe [:input/personae]))
-                   (.append form-data "alignments" @(subscribe [:input/alignments]))
-                   (.append form-data "parameters" @(subscribe [:input/parameters]))
+                   (.append form-data "profiles" @(subscribe [:input/get-data-vector :input/profiles]))
+                   (.append form-data "personae-array" @(subscribe [:input/get-data :input/personae]))
+                   (.append form-data "alignments" @(subscribe [:input/get-data :input/alignments]))
+                   (.append form-data "parameters" @(subscribe [:input/get-data :input/parameters]))
                    (.append form-data "lrs-endpoint" @(subscribe [:options/endpoint]))
                    (.append form-data "api-key" @(subscribe [:options/api-key]))
                    (.append form-data "api-secret-key" @(subscribe [:options/api-secret-key]))
@@ -85,9 +87,9 @@
     :gutters           ["CodeMirror-link-markers"]
     :lint              true}
    {:name   (util/input-name key)
-    :value  @(subscribe [key])
+    :value  @(subscribe [:input/get-data key])
     :events {"change" (fn [this [cm obj]]
-                        (dispatch [key (.getValue cm)]))}}])
+                        (dispatch [:input/set-data key (.getValue cm)]))}}])
 
 (defn textfield
   [key & {:keys [form?]
@@ -143,3 +145,21 @@
          [:div {:class (cond-> "validation-details"
                           (:error/visible error) (str " visible"))}
           (str (:error/text error))]])]]]])
+
+
+(defn if-valid
+  [key form]
+  (if @(subscribe [:input/get-valid key])
+    form
+    [:p
+     "The JSON for this input is not valid and must be fixed or removed before using this edit mode."]))
+
+(defmulti edit-form (fn [key mode]
+                      [key (or
+                            (:mode-type mode)
+                            (:mode mode))]))
+
+;; Default to error message
+(defmethod edit-form :default [_ _]
+  [:p
+   "No Editor For This Mode"])

@@ -98,3 +98,27 @@
   box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
   transition-duration: .1s;
 }
+
+.element-button {
+  border: 1px solid black;
+  width: 150px;
+}
+
+.element-button .material-icons {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+.remove-profile {
+  padding-top: 15px;
+  font-size: medium;
+  font-weight: bold;
+  color: darkred !important;
+}
+
+.add-profile {
+  padding-top: 15px;
+  font-size: medium;
+  font-weight: bold;
+  color: #348c2d !important;
+}

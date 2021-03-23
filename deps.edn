@@ -6,7 +6,8 @@
                                       :sha        "1408fc5cb3cc0f5800a7e498d3e6dbaac6d981ad"
                                       :exclusions [org.clojure/clojurescript
                                                    reagent]}
-           cljs-http                 {:mvn/version "0.1.46"}}
+           cljs-http                 {:mvn/version "0.1.46"}
+           cljsjs/flatpickr          {:mvn/version "4.5.2-0"}}
  :aliases {:fig        {:extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.2.3"}
                                       com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
                         :extra-paths ["target" "resources"]
