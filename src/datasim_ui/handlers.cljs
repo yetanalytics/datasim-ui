@@ -193,7 +193,6 @@
 (re-frame/reg-event-fx
  :input/remove-element-vector
  (fn [{:keys [event db]} [_ input-key index]]
-   (pprint [input-key index])
    (let [data (get-in db [::db/input input-key :input-data])]
      {:dispatch [:input/set-data input-key
                  (into [] (concat (subvec data 0 index)
