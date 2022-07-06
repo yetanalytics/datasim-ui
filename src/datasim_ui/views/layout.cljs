@@ -16,11 +16,7 @@
             [:input#import-input.hidden-button
              {:type     "file"
               :onChange (fn [e]
-                          (fns/import-file e :input/all))}]
-            [:button.minorbutton
-             {:on-click (fn [e]
-                          (fns/import-url e :input/all))}
-             "Import from URL"]
+                          (fns/import-file e :input/all))}]            
             [:button.minorbutton
              {:on-click (fn [e]
                           (fns/click-input e "import-input"))}

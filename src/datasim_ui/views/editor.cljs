@@ -48,11 +48,7 @@
        (if (= :max size)
          [editor-tab-bar key]
          [:span.editor-title input-name])]
-      [:div.spacer]
-      [:button.minorbutton
-       {:on-click (fn [e]
-                    (fns/import-url e key))}
-       "Import from URL"]
+      [:div.spacer]      
       [:button.minorbutton
        {:on-click (fn [e]
                     (fns/click-input e id))}

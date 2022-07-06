@@ -62,30 +62,3 @@
         (.append js/document.body
                  link)))
     (.click link)))
-
-(defn import-url
-  [e k]
-  (ps-event e)
-  (dispatch [:dialog/open
-             {:title "Import from URL"
-              :form  {:url {:type  :text
-                            :label "URL"
-                            :text  ""}}
-              :save  (fn []
-                       (go (let [response
-                                 (<! (http/get (str api "/download-url")
-                                               {:with-credentials? false
-                                                :headers           {"Access-Control-Allow-Origin" "*"}
-                                                :query-params      {"url" (js/encodeURIComponent @(subscribe [:dialog.form/text :url]))}}))]
-                             (condp = (:status response)
-                               200 (dispatch (case k
-                                               :input/all
-                                               [:input/set-all (:body response)]
-                                               :input/profiles
-                                               [:input/import-vector k (:body response)]
-                                               [:input/set-data k (:body response)]))
-                               400 (snackbar! "URL was malformed")
-                               406 (snackbar! "Client Error")
-                               404 (snackbar! "Could not find URL")
-                               500 (snackbar! "An error occured"))))
-                       (dispatch [:dialog/close]))}]))
