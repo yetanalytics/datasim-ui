@@ -1,5 +1,7 @@
 #  Data and Training Analytics Simulated Input Modeler (DATASIM) User Interface
 
+**DEPRECATION NOTICE:** The DATASIM UI has been deprecated as of DATASIM version v0.4.0. You can continuing using DATASIM directly from the command line, or sign up for [Centriph](https://beta.centriph.com/) to use its DATASIM features. This repository remains for historical documentation.
+
 ## What is DATASIM?
 
 The Data and Training Analytics Simulated Input Modeler is a research and development project designed to provide open source specifications and an open source reference model application for the purpose of generated simulated xAPI data at scale.
